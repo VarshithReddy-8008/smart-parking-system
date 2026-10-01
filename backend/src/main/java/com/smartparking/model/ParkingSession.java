@@ -38,13 +38,13 @@ public class ParkingSession {
     @JoinColumn(name = "slot_id", nullable = false)
     private ParkingSlot parkingSlot;
 
-    @Column(name = "entry_time", nullable = false, updatable = false)
+    @Column(name = "entry_time", nullable = false)
     @Builder.Default
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Kolkata")
     private LocalDateTime entryTime = LocalDateTime.now();
 
     @Column(name = "exit_time")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Kolkata")
     private LocalDateTime exitTime;
 
     @Column(name = "status", nullable = false, length = 20)

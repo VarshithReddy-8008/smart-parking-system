@@ -10,6 +10,9 @@ import com.smartparking.repository.ParkingSlotRepository;
 import com.smartparking.repository.PricingRuleRepository;
 import com.smartparking.repository.VehicleTypeRepository;
 import com.smartparking.repository.WeatherStatusRepository;
+import com.smartparking.model.ParkingSession;
+import com.smartparking.repository.ParkingSessionRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -31,9 +34,25 @@ public class DataInitializer implements CommandLineRunner {
     private final PricingRuleRepository pricingRuleRepository;
     private final WeatherStatusRepository weatherStatusRepository;
     private final ParkingSlotRepository parkingSlotRepository;
+    private final ParkingSessionRepository parkingSessionRepository;
 
     @Override
     public void run(String... args) throws Exception {
+        // Fix any active sessions that were recorded under UTC timezone
+        try {
+            List<ParkingSession> activeSessions = parkingSessionRepository.findByStatus("ACTIVE");
+            for (ParkingSession s : activeSessions) {
+                if (s.getEntryTime() != null && s.getEntryTime().getHour() < 13) {
+                    LocalDateTime corrected = s.getEntryTime().plusHours(5).plusMinutes(30);
+                    log.info("Correcting entryTime for session ID {}: {} -> {}", s.getId(), s.getEntryTime(), corrected);
+                    s.setEntryTime(corrected);
+                    parkingSessionRepository.save(s);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Could not adjust active session times: {}", e.getMessage());
+        }
+
         if (parkingSlotRepository.count() > 0) {
             log.info("Database already initialized with {} parking slots. Skipping seed.", parkingSlotRepository.count());
             return;
