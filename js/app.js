@@ -4,7 +4,12 @@
  * with a full offline sandbox simulation fallback.
  */
 
-const API_BASE = 'http://localhost:8080/api/parking';
+const PROD_API_BASE = 'https://smart-parking-system-production-d4f0.up.railway.app/api/parking';
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port === '8080'
+    ? 'http://localhost:8080/api/parking'
+    : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? (localStorage.getItem('API_BASE') || PROD_API_BASE)
+        : PROD_API_BASE;
 let useMockData = false;
 
 /**
