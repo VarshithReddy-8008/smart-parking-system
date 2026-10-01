@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <script>
+    (function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const isParamAuthed = urlParams.get('auth') === '8008' || urlParams.get('auth') === 'true';
+      
+      let isAuthed = false;
+      try {
+        isAuthed = sessionStorage.getItem('ownerAuth') === 'true' || localStorage.getItem('ownerAuth') === 'true';
+      } catch (e) {
+        console.warn("Storage access restricted. Checking URL credentials.", e);
+      }
+      
+      if (isParamAuthed) {
+        isAuthed = true;
+        try {
+          sessionStorage.setItem('ownerAuth', 'true');
+          localStorage.setItem('ownerAuth', 'true');
+        } catch (e) {}
+      }
+      
+      if (!isAuthed) {
+        window.location.href = 'login.html';
+      }
+    })();
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ParkSmart — Owner Analytics Dashboard">
+  <title>Owner Analytics - ParkSmart</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <!-- Chart.js CDN for live analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Restore theme immediately before render -->
+  <script>
+    try {
+      const savedTheme = localStorage.getItem('ps-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    } catch (e) {}
+  </script>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="logo">
+      <div class="logo-icon-wrap"><i class="ti ti-car logo-icon" aria-hidden="true"></i></div>
+      <div class="logo-text-wrap">
+        <div class="name logo-text">ParkSmart</div>
+        <div class="sub">Owner Portal</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        Live database
+      </div>
+      <a href="index.html" class="btn btn-ghost" style="margin-left: 10px; font-size: 0.9rem; padding: 5px 10px; text-decoration: none;">Dashboard</a>
+      <button class="theme-toggle" id="theme-toggle-btn" aria-label="Toggle dark/light mode" title="Toggle theme">
+        <i class="ti ti-sun" id="theme-icon"></i>
+      </button>
+      <button id="logout-btn" class="btn btn-ghost" style="margin-left: 10px; font-size: 0.9rem; padding: 5px 10px;">Logout</button>
+    </div>
+  </header>
+
+  <main class="app-main">
+
+    <section class="hero-section" style="margin-top: 2rem;">
+      <h1>Owner Analytics Dashboard</h1>
+      <p>Real-time telemetry, revenue, and pricing analytics for your parking infrastructure.</p>
+    </section>
+
+    <!-- Stats grid -->
+    <section class="stats-container">
+      <div class="stat-card stat-total">
+        <i class="ti ti-parking stat-icon" aria-hidden="true"></i>
+        <span class="stat-label">Total slots</span>
+        <span class="stat-value" id="stats-total-slots">0</span>
+      </div>
+      <div class="stat-card stat-available">
+        <i class="ti ti-circle-check stat-icon" aria-hidden="true"></i>
+        <span class="stat-label">Available</span>
+        <span class="stat-value" id="stats-available-slots">0</span>
+      </div>
+      <div class="stat-card stat-occupied">
+        <i class="ti ti-car-garage stat-icon" aria-hidden="true"></i>
+        <span class="stat-label">Occupied</span>
+        <span class="stat-value" id="stats-occupied-slots">0</span>
+      </div>
+      <div class="stat-card stat-sess">
+        <i class="ti ti-users stat-icon" aria-hidden="true"></i>
+        <span class="stat-label">Active sessions</span>
+        <span class="stat-value" id="stats-active-sessions">0</span>
+      </div>
+    </section>
+
+    <!-- ANPR Statistics Panel -->
+    <section class="section-panel" style="margin-top: 2rem;">
+        <div class="panel-header">
+            <i class="ti ti-scan panel-header-icon" aria-hidden="true"></i>
+            <h2 class="panel-title">ANPR — Number Plate Scan Analytics</h2>
+        </div>
+        <div class="panel-body">
+            <div class="stats-container" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+                <div class="stat-card stat-total">
+                    <i class="ti ti-camera stat-icon" aria-hidden="true"></i>
+                    <span class="stat-label">Today's Scans</span>
+                    <span class="stat-value" id="anpr-today-scans">—</span>
+                </div>
+                <div class="stat-card stat-available">
+                    <i class="ti ti-circle-check stat-icon" aria-hidden="true"></i>
+                    <span class="stat-label">OCR Success Rate</span>
+                    <span class="stat-value" id="anpr-success-rate">—</span>
+                </div>
+                <div class="stat-card stat-sess">
+                    <i class="ti ti-chart-bar stat-icon" aria-hidden="true"></i>
+                    <span class="stat-label">Avg Confidence</span>
+                    <span class="stat-value" id="anpr-avg-conf">—</span>
+                </div>
+                <div class="stat-card stat-occupied" style="grid-column: span 1;">
+                    <i class="ti ti-license-plate stat-icon" aria-hidden="true"></i>
+                    <span class="stat-label">Last Scanned</span>
+                    <span class="stat-value" id="anpr-last-scan" style="font-size: 1rem;">—</span>
+                </div>
+            </div>
+
+            <!-- ANPR Scan History Table -->
+            <div style="margin-top: 1.5rem;">
+                <span class="form-label">Recent Scan History (last 50)</span>
+                <div class="table-wrapper" style="margin-top: 8px; max-height: 300px; overflow-y: auto;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Detected Plate</th>
+                                <th>Confidence</th>
+                                <th>Status</th>
+                                <th>Confirmed Plate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="anpr-history-tbody">
+                            <tr><td colspan="5" style="text-align:center; color: var(--text-secondary);">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Master Vehicle & Sessions Log Panel -->
+    <section class="section-panel" style="margin-top: 2rem;">
+        <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="ti ti-car panel-header-icon" aria-hidden="true"></i>
+                <h2 class="panel-title">Active &amp; Historical Vehicle Sessions</h2>
+            </div>
+            <button class="btn btn-ghost" id="owner-refresh-btn" style="padding: 4px 10px; font-size: 0.8rem;"><i class="ti ti-refresh"></i> Refresh</button>
+        </div>
+        <div class="panel-body">
+            <!-- Search & Filter Controls -->
+            <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-bottom: 1.25rem;">
+                <div style="flex: 1; min-width: 220px;">
+                    <input type="text" class="form-input" id="owner-search-input" placeholder="🔍 Search plate, owner, phone, slot...">
+                </div>
+                <div style="width: 160px;">
+                    <select class="form-select" id="owner-category-filter">
+                        <option value="ALL">All Categories</option>
+                        <option value="CAR">CAR</option>
+                        <option value="BIKE">BIKE</option>
+                        <option value="TRUCK">TRUCK</option>
+                        <option value="EV">EV</option>
+                    </select>
+                </div>
+                <div style="width: 160px;">
+                    <select class="form-select" id="owner-status-filter">
+                        <option value="ALL">All Statuses</option>
+                        <option value="ACTIVE" selected>Active Parked</option>
+                        <option value="COMPLETED">Completed Checkouts</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Vehicles Table -->
+            <div class="table-wrapper" style="max-height: 400px; overflow-y: auto;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>License Plate</th>
+                            <th>Category</th>
+                            <th>Slot</th>
+                            <th>Owner</th>
+                            <th>Contact</th>
+                            <th>Check-in Time</th>
+                            <th>Check-out Time</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="owner-sessions-tbody">
+                        <tr><td colspan="9" style="text-align: center; color: var(--text-secondary); padding: 1.5rem;">Loading vehicle sessions...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Analytics Dashboard Charts (Bottom of Page) -->
+    <section class="section-panel" style="margin-top: 2rem;">
+        <div class="panel-header">
+            <i class="ti ti-chart-pie panel-header-icon" aria-hidden="true"></i>
+            <h2 class="panel-title">Telemetry &amp; AI Price Analytics</h2>
+        </div>
+        <div class="panel-body analytics-grid">
+            <div>
+                <span class="form-label">Revenue Telemetry (Weekly)</span>
+                <div class="chart-wrapper">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <span class="form-label">Occupancy Trends (hourly)</span>
+                <div class="chart-wrapper">
+                    <canvas id="occupancyChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <span class="form-label">Vehicle Distribution</span>
+                <div class="chart-wrapper">
+                    <canvas id="vehicleTypeChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <span class="form-label">Dynamic Price Trends</span>
+                <div class="chart-wrapper">
+                    <canvas id="pricingTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+  </main>
+
+  <script src="js/app.js"></script>
+  <script>
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      try {
+        sessionStorage.removeItem('ownerAuth');
+        localStorage.removeItem('ownerAuth');
+      } catch (e) {}
+      window.location.href = 'login.html';
+    });
+
+    // ── Owner Vehicle Log Rendering ──────────────────
+    function renderOwnerVehicleLog() {
+      if (typeof loadMockDb === 'function') {
+        loadMockDb();
+      }
+
+      const sessions = (mockDb && Array.isArray(mockDb.sessions)) ? mockDb.sessions : [];
+      const search = (document.getElementById('owner-search-input')?.value || '').toLowerCase().trim();
+      const cat = document.getElementById('owner-category-filter')?.value || 'ALL';
+      const stat = document.getElementById('owner-status-filter')?.value || 'ALL';
+
+      const filtered = sessions.filter(s => {
+        const plate = (s.vehicle?.licensePlate || '').toLowerCase();
+        const owner = (s.vehicle?.ownerName || '').toLowerCase();
+        const contact = (s.vehicle?.ownerContact || '').toLowerCase();
+        const slot = (s.parkingSlot?.slotNumber || '').toLowerCase();
+        const type = s.vehicle?.vehicleType?.typeName || '';
+
+        const matchSearch = !search || plate.includes(search) || owner.includes(search) || contact.includes(search) || slot.includes(search);
+        const matchCat = cat === 'ALL' || type === cat;
+        const matchStat = stat === 'ALL' || s.status === stat;
+        return matchSearch && matchCat && matchStat;
+      });
+
+      const tbody = document.getElementById('owner-sessions-tbody');
+      if (!tbody) return;
+
+      if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--text-secondary); padding: 1.5rem;">No vehicles found matching filters.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(s => {
+        const plate = s.vehicle?.licensePlate || '—';
+        const type = s.vehicle?.vehicleType?.typeName || '—';
+        const slot = s.parkingSlot?.slotNumber || '—';
+        const owner = s.vehicle?.ownerName || '<span style="color:var(--text-muted)">Guest</span>';
+        const contact = s.vehicle?.ownerContact || '<span style="color:var(--text-muted)">—</span>';
+        const inTime = typeof formatDateTime === 'function' ? formatDateTime(s.entryTime) : (s.entryTime || '—');
+        const outTime = s.exitTime ? (typeof formatDateTime === 'function' ? formatDateTime(s.exitTime) : s.exitTime) : '—';
+        const statusBadge = s.status === 'ACTIVE'
+          ? '<span class="status-badge status-active">Parked</span>'
+          : '<span class="status-badge" style="background: rgba(255,255,255,0.05); color: var(--text-secondary);">Completed</span>';
+        const action = s.status === 'ACTIVE'
+          ? `<a href="index.html" class="btn btn-ghost" style="padding: 2px 8px; font-size: 0.75rem;">Check Out</a>`
+          : '<span style="color:var(--text-muted)">—</span>';
+
+        return `
+          <tr>
+            <td style="font-weight: 700; color: var(--neon-cyan);">${plate}</td>
+            <td>${type}</td>
+            <td><span style="border: 1px solid rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-weight: 600;">${slot}</span></td>
+            <td>${owner}</td>
+            <td>${contact}</td>
+            <td style="color: var(--text-secondary);">${inTime}</td>
+            <td style="color: var(--text-secondary);">${outTime}</td>
+            <td>${statusBadge}</td>
+            <td>${action}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    document.getElementById('owner-search-input')?.addEventListener('input', renderOwnerVehicleLog);
+    document.getElementById('owner-category-filter')?.addEventListener('change', renderOwnerVehicleLog);
+    document.getElementById('owner-status-filter')?.addEventListener('change', renderOwnerVehicleLog);
+    document.getElementById('owner-refresh-btn')?.addEventListener('click', renderOwnerVehicleLog);
+
+    window.addEventListener('storage', renderOwnerVehicleLog);
+    window.addEventListener('parking_db_updated', renderOwnerVehicleLog);
+
+    renderOwnerVehicleLog();
+    setInterval(renderOwnerVehicleLog, 3000);
+
+    // ── ANPR Stats Loading ──────────────────────────
+    async function loadAnprStats() {
+      const base = (typeof API_BASE !== 'undefined' ? API_BASE : 'http://localhost:8080/api/parking')
+          .replace('/api/parking', '') + '/api/anpr';
+      try {
+        const [statsRes, histRes] = await Promise.all([
+          fetch(base + '/stats'),
+          fetch(base + '/history')
+        ]);
+        if (statsRes.ok) {
+          const s = await statsRes.json();
+          document.getElementById('anpr-today-scans').textContent = s.todayScans ?? '0';
+          document.getElementById('anpr-success-rate').textContent = (s.successRate ?? 0) + '%';
+          document.getElementById('anpr-avg-conf').textContent = (s.avgConfidence ?? 0) + '%';
+          document.getElementById('anpr-last-scan').textContent = s.lastScannedVehicle && s.lastScannedVehicle !== '—' ? s.lastScannedVehicle : '—';
+        }
+        if (histRes.ok) {
+          const history = await histRes.json();
+          const tbody = document.getElementById('anpr-history-tbody');
+          if (!history.length) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-secondary);">No scans yet.</td></tr>';
+          } else {
+            tbody.innerHTML = history.map(row => {
+              const time = row.scanTime ? new Date(row.scanTime).toLocaleString('en-IN') : '—';
+              const plate = row.vehicleNumber || '—';
+              const conf = row.confidence != null ? row.confidence.toFixed(1) + '%' : '—';
+              const status = row.scanSuccess
+                ? '<span style="color:var(--neon-green)">✓ Success</span>'
+                : '<span style="color:var(--neon-red)">✗ Failed</span>';
+              const confirmed = row.finalVehicleNumber || '—';
+              return `<tr><td>${time}</td><td style="font-family:monospace;letter-spacing:1px;font-weight:700;">${plate}</td><td>${conf}</td><td>${status}</td><td>${confirmed}</td></tr>`;
+            }).join('');
+          }
+        }
+      } catch(e) {
+        console.warn('ANPR stats not available (server may be offline):', e.message);
+      }
+    }
+
+    loadAnprStats();
+    setInterval(loadAnprStats, 30000); // Refresh every 30 seconds
+  </script>
+</body>
+</html>
