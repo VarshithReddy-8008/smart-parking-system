@@ -38,7 +38,7 @@ public class ANPRController {
                             .build()
             );
         }
-        AnprScanResponse response = anprService.processScan(request.getImageBase64());
+        AnprScanResponse response = anprService.processScan(request);
         return ResponseEntity.ok(response);
     }
 

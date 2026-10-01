@@ -104,7 +104,7 @@ public class OCRService {
      * Decodes a base64 image string (optionally with data URI prefix) and saves it to disk.
      * Returns the relative path to the saved image.
      */
-    private String saveBase64Image(String base64Image) throws Exception {
+    public String saveBase64Image(String base64Image) throws Exception {
         // Strip the data URI prefix if present (e.g., "data:image/jpeg;base64,...")
         String pureBase64 = base64Image;
         if (base64Image.contains(",")) {

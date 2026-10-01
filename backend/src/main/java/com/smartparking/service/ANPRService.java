@@ -27,11 +27,30 @@ public class ANPRService {
     private static final DateTimeFormatter DISPLAY_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm:ss");
 
     /**
-     * Receives a base64 image, runs OCR, saves result to DB, returns response.
+     * Receives a scan request (with base64 image and optional client-detected plate),
+     * saves result to DB, returns response.
      */
-    public AnprScanResponse processScan(String base64Image) {
-        // Run OCR
-        OCRService.OcrResult ocrResult = ocrService.processBase64Image(base64Image);
+    public AnprScanResponse processScan(com.smartparking.dto.AnprScanRequest request) {
+        String base64Image = request.getImageBase64();
+        String vehicleNumber = request.getVehicleNumber();
+        Double confidence = request.getConfidence();
+
+        OCRService.OcrResult ocrResult;
+
+        if (vehicleNumber != null && !vehicleNumber.trim().isEmpty()) {
+            ocrResult = new OCRService.OcrResult();
+            ocrResult.success = true;
+            ocrResult.vehicleNumber = vehicleNumber.trim().toUpperCase().replaceAll("[^A-Z0-9]", "");
+            ocrResult.confidence = (confidence != null && confidence > 0) ? confidence : 89.5;
+            ocrResult.message = "OK";
+            try {
+                ocrResult.imagePath = ocrService.saveBase64Image(base64Image);
+            } catch (Exception e) {
+                ocrResult.imagePath = "anpr/images/scan_live.jpg";
+            }
+        } else {
+            ocrResult = ocrService.processBase64Image(base64Image);
+        }
 
         // Persist scan record
         NumberPlateScan scan = NumberPlateScan.builder()
@@ -53,6 +72,10 @@ public class ANPRService {
                 .message(ocrResult.message)
                 .imagePath(ocrResult.imagePath)
                 .build();
+    }
+
+    public AnprScanResponse processScan(String base64Image) {
+        return processScan(com.smartparking.dto.AnprScanRequest.builder().imageBase64(base64Image).build());
     }
 
     /**

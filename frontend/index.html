@@ -427,13 +427,31 @@
         Position the number plate clearly in the frame, then click <strong>Capture</strong>.
       </p>
 
-      <div style="display:flex; gap:10px;">
+      <div style="display:flex; gap:8px; margin-bottom: 0.75rem;">
         <button id="anpr-capture-btn" type="button" class="btn btn-primary" style="flex:1; justify-content:center;">
           <i class="ti ti-camera-plus" aria-hidden="true"></i> Capture &amp; Scan
         </button>
-        <button id="anpr-cancel-btn" type="button" class="btn btn-ghost" style="flex:1; justify-content:center;">
+        <button id="anpr-upload-btn" type="button" class="btn btn-ghost" style="justify-content:center;">
+          <i class="ti ti-upload" aria-hidden="true"></i> Upload
+        </button>
+        <input type="file" id="anpr-file-input" accept="image/*" style="display:none;">
+        <button id="anpr-cancel-btn" type="button" class="btn btn-ghost" style="justify-content:center;">
           Cancel
         </button>
+      </div>
+
+      <!-- Quick Demo Plates for rapid testing without physical car -->
+      <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border-glass);">
+        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
+          <span>⚡ Quick Test Demo Plates:</span>
+          <span style="color: var(--neon-cyan); font-size: 0.7rem;">Click to simulate</span>
+        </div>
+        <div style="display: flex; gap: 6px; flex-wrap: wrap;" id="anpr-quick-plates">
+          <button type="button" class="btn btn-ghost anpr-demo-chip" data-plate="TS09EA1234" style="font-size: 0.75rem; padding: 4px 8px; font-family: 'JetBrains Mono', monospace;">TS 09 EA 1234</button>
+          <button type="button" class="btn btn-ghost anpr-demo-chip" data-plate="AP09BC5678" style="font-size: 0.75rem; padding: 4px 8px; font-family: 'JetBrains Mono', monospace;">AP 09 BC 5678</button>
+          <button type="button" class="btn btn-ghost anpr-demo-chip" data-plate="MH12DE1433" style="font-size: 0.75rem; padding: 4px 8px; font-family: 'JetBrains Mono', monospace;">MH 12 DE 1433</button>
+          <button type="button" class="btn btn-ghost anpr-demo-chip" data-plate="DL01AB9999" style="font-size: 0.75rem; padding: 4px 8px; font-family: 'JetBrains Mono', monospace;">DL 01 AB 9999</button>
+        </div>
       </div>
 
       <!-- Result Area -->
@@ -455,6 +473,8 @@
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   </style>
 
+  <!-- Client-side OCR Engine CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <!-- ANPR Module Script -->
   <script src="js/anpr.js"></script>
 </body>
