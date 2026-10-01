@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ParkSmart — AI-Powered Smart Vehicle Parking Management System">
+  <title>ParkSmart Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <!-- Chart.js CDN for live analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Restore theme immediately before render -->
+  <script>
+    try {
+      const savedTheme = localStorage.getItem('ps-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    } catch (e) {}
+  </script>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="logo">
+      <div class="logo-icon-wrap"><i class="ti ti-car logo-icon" aria-hidden="true"></i></div>
+      <div class="logo-text-wrap">
+        <div class="name logo-text">ParkSmart</div>
+        <div class="sub">Parking Hub</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        Live database
+      </div>
+      <button class="theme-toggle" id="theme-toggle-btn" aria-label="Toggle dark/light mode" title="Toggle theme">
+        <i class="ti ti-sun" id="theme-icon"></i>
+      </button>
+      <a href="login.html" class="btn btn-ghost" style="margin-left: 10px; font-size: 0.9rem; padding: 5px 10px;">Owner Login</a>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="app-main">
+
+    <!-- Emergency Active Warning Banner -->
+    <div class="emergency-banner" id="emergency-alert-banner">
+        <div class="emergency-info">
+            <i class="ti ti-siren emergency-icon" aria-hidden="true"></i>
+            <div id="emergency-alert-text">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+        <div class="gate-animation-container">
+            <span style="z-index:1">GATE BARRIER</span>
+            <div class="gate-barrier" id="emergency-gate-barrier"></div>
+        </div>
+    </div>
+
+    <!-- Weather Widget Section -->
+    <div class="weather-widget">
+        <div class="weather-info">
+            <i class="ti ti-sun weather-icon-lg" id="weather-icon" aria-hidden="true"></i>
+            <div>
+                <div class="weather-desc" id="weather-desc">Sunny</div>
+                <div style="font-size: 0.8rem; color: var(--text-secondary);" id="weather-alert-label">Normal Conditions</div>
+            </div>
+        </div>
+        <div class="weather-temp" id="weather-temp">32.5°C</div>
+        <div class="weather-recommendation" id="weather-rec-label">
+            ☀️ Recommends nearest parking slots to reduce walking distance.
+        </div>
+    </div>
+
+    <!-- Hero -->
+    <section class="hero-section">
+      <h1>Smart Parking Dashboard</h1>
+      <p>Real-time recommendation scoring, dynamic pricing matrices, and automated emergency gate triggers.</p>
+    </section>
+
+    <!-- Stats grid -->
+    <section class="stats-container">
+      <div class="stat-card stat-total">
+        <i class="ti ti-parking stat-icon" aria-hidden="true"></i>
+        <span class="stat-label">Total slots</span>
+        <span class="stat-value" id="stats-total-slots">0</span>
+      </div>
+      <div class="stat-card stat-available">
+        <i class="ti ti-circle-check stat-icon" aria-hidden="true"></i>
+        <span class="stat-label">Available</span>
+        <span class="stat-value" id="stats-available-slots">0</span>
+      </div>
+      <div class="stat-card stat-occupied">
+        <i class="ti ti-car-garage stat-icon" aria-hidden="true"></i>
+        <span class="stat-label">Occupied</span>
+        <span class="stat-value" id="stats-occupied-slots">0</span>
+      </div>
+      <div class="stat-card stat-sess">
+        <i class="ti ti-users stat-icon" aria-hidden="true"></i>
+        <span class="stat-label">Active sessions</span>
+        <span class="stat-value" id="stats-active-sessions">0</span>
+      </div>
+    </section>
+
+    <!-- Dashboard core layout -->
+    <div class="dashboard-grid">
+
+      <!-- Left column: Map & Tables -->
+      <div class="left-column">
+        
+        <!-- Live Parking Map -->
+        <section class="section-panel">
+          <div class="panel-header">
+            <i class="ti ti-map-2 panel-header-icon" aria-hidden="true"></i>
+            <h2 class="panel-title">Interactive Slot Allocations Map</h2>
+          </div>
+          <div class="panel-body">
+            <div class="slot-map-container" id="slot-map-container">
+                <!-- Skeleton loader -->
+            </div>
+            
+            <!-- Dynamic Colors Map Legend -->
+            <div class="slot-legend">
+              <div class="legend-item"><div class="legend-dot avail"></div>Available</div>
+              <div class="legend-item"><div class="legend-dot occ"></div>Occupied</div>
+              <div class="legend-item"><div class="legend-dot ev"></div>EV spots</div>
+              <div class="legend-item"><div class="legend-dot dis"></div>Disabled spots</div>
+              <div class="legend-item"><div class="legend-dot emg"></div>Emergency Reserved</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Active vehicles table log -->
+        <section class="section-panel">
+          <div class="panel-header">
+            <i class="ti ti-list-details panel-header-icon" aria-hidden="true"></i>
+            <h2 class="panel-title">Real-Time Parking Sessions Log</h2>
+          </div>
+          <div class="sessions-table-container">
+            <table class="cyber-table" id="sessions-table">
+              <thead>
+                <tr>
+                  <th>Plate</th>
+                  <th>Slot</th>
+                  <th>Type</th>
+                  <th>Check-in</th>
+                  <th>Owner</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="sessions-table-body">
+                <tr>
+                  <td colspan="6">
+                    <div class="empty-state">
+                      <i class="ti ti-car-off" aria-hidden="true"></i>
+                      No vehicles currently parked.
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- Right column: Forms & Modules -->
+      <div class="right-column">
+        
+        <!-- Dynamic Pricing Engine widget -->
+        <section class="section-panel">
+          <div class="panel-header">
+            <i class="ti ti-chart-bar panel-header-icon" aria-hidden="true"></i>
+            <h2 class="panel-title">Dynamic Pricing Matrix</h2>
+          </div>
+          <div class="panel-body">
+            <div class="pricing-metric-box">
+                <span>Occupancy Rate</span>
+                <span id="current-occupancy-label" style="font-weight: 700;">0%</span>
+            </div>
+            <div class="pricing-metric-box">
+                <span>Pricing Trend</span>
+                <i class="ti ti-arrows-right-left" id="pricing-trend-icon" style="font-size: 1.1rem;"></i>
+            </div>
+            <div class="pricing-metric-box">
+                <span>Peak Indicator</span>
+                <span class="stable-badge" id="peak-pricing-badge">NORMAL</span>
+            </div>
+            <div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.75rem;">
+                <span class="form-label">Current Hourly Surcharge Rates</span>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px;">
+                    <div style="background: rgba(255,255,255,0.02); padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.03);">
+                        <div style="font-size: 0.7rem; color: var(--text-secondary);">CAR</div>
+                        <div style="font-weight: 700; color: var(--neon-cyan);" id="current-car-price">₹30/hr</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.02); padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.03);">
+                        <div style="font-size: 0.7rem; color: var(--text-secondary);">BIKE</div>
+                        <div style="font-weight: 700; color: var(--neon-green);" id="current-bike-price">₹15/hr</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.02); padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.03);">
+                        <div style="font-size: 0.7rem; color: var(--text-secondary);">TRUCK</div>
+                        <div style="font-weight: 700; color: var(--neon-red);" id="current-truck-price">₹50/hr</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.02); padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.03);">
+                        <div style="font-size: 0.7rem; color: var(--text-secondary);">EV CHARGING</div>
+                        <div style="font-weight: 700; color: var(--neon-yellow);" id="current-ev-price">₹25/hr</div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-secondary);">
+                <span>Active Dynamic Rules:</span>
+                <ul id="active-pricing-multipliers" style="list-style: none; margin-top: 4px; padding-left: 4px;">
+                    <!-- Rules populated dynamically -->
+                </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Check-in -->
+        <section class="section-panel">
+          <div class="panel-header">
+            <i class="ti ti-login panel-header-icon" aria-hidden="true"></i>
+            <h2 class="panel-title">Automated Check-in</h2>
+          </div>
+          <div class="panel-body">
+            <form id="check-in-form" novalidate>
+              <div class="form-group">
+                <label class="form-label" for="input-plate">License plate</label>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <input class="form-input" type="text" id="input-plate" placeholder="e.g. MH-12-AB-1234" required style="flex: 1;">
+                  <button type="button" class="btn btn-ghost" id="anpr-scan-btn" title="Scan Number Plate with Camera" style="white-space: nowrap; padding: 10px 12px;">
+                    <i class="ti ti-camera" aria-hidden="true"></i> Scan
+                  </button>
+                </div>
+                <div id="anpr-feedback" style="font-size: 0.8rem; margin-top: 5px; display: none;"></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="select-type">Vehicle category</label>
+                <div class="select-wrapper">
+                  <select class="form-select" id="select-type" required>
+                    <option value="CAR">Car (Sedan / SUV)</option>
+                    <option value="BIKE">Bike (two-wheeler)</option>
+                    <option value="TRUCK">Truck (heavy commercial)</option>
+                    <option value="EV">EV (electric charging spot)</option>
+                    <option value="AMBULANCE">Ambulance (Emergency)</option>
+                    <option value="POLICE">Police vehicle (Emergency)</option>
+                    <option value="FIRE_TRUCK">Fire Truck (Emergency)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="input-owner">Owner name <span class="opt">(optional)</span></label>
+                <input class="form-input" type="text" id="input-owner" placeholder="e.g. John Doe">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="input-contact">Owner contact <span class="opt">(optional)</span></label>
+                <input class="form-input" type="tel" id="input-contact" placeholder="e.g. +91 9876543210">
+              </div>
+              <button class="btn btn-success" type="submit">
+                <i class="ti ti-login-2" aria-hidden="true"></i>
+                Submit check-in
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Check-out -->
+        <section class="section-panel">
+          <div class="panel-header">
+            <i class="ti ti-logout panel-header-icon" aria-hidden="true"></i>
+            <h2 class="panel-title">Automated Check-out</h2>
+          </div>
+          <div class="panel-body">
+            <form id="check-out-form" novalidate>
+              <div class="form-group">
+                <label class="form-label" for="checkout-plate">License plate</label>
+                <input class="form-input" type="text" id="checkout-plate" placeholder="e.g. MH-12-AB-1234" required>
+              </div>
+              <button class="btn" type="submit">
+                <i class="ti ti-logout-2" aria-hidden="true"></i>
+                Process check-out
+              </button>
+            </form>
+
+            <!-- Receipt Ticket stub -->
+            <div id="checkout-ticket-stub" style="display:none;">
+              <div class="receipt-ticket">
+                <div class="receipt-header">
+                  <span class="receipt-title">Parking invoice</span>
+                  <span class="receipt-txn" id="ticket-id-label">TXN #0000</span>
+                </div>
+                <div class="receipt-row">
+                  <span class="receipt-key">License plate</span>
+                  <span class="receipt-val" id="ticket-plate">--</span>
+                </div>
+                <div class="receipt-row">
+                  <span class="receipt-key">Allocated slot</span>
+                  <span class="receipt-val" id="ticket-slot">--</span>
+                </div>
+                <div class="receipt-row">
+                  <span class="receipt-key">Check-in</span>
+                  <span class="receipt-val" id="ticket-entry">--</span>
+                </div>
+                <div class="receipt-row">
+                  <span class="receipt-key">Check-out</span>
+                  <span class="receipt-val" id="ticket-exit">--</span>
+                </div>
+                <div class="receipt-row">
+                  <span class="receipt-key">Duration</span>
+                  <span class="receipt-val" id="ticket-duration">--</span>
+                </div>
+                <div class="receipt-total">
+                  <span class="receipt-total-label">Total due</span>
+                  <span class="receipt-total-amount" id="ticket-total-due">₹0.00</span>
+                </div>
+                <button class="btn btn-primary" id="btn-pay-now">
+                  <i class="ti ti-credit-card" aria-hidden="true"></i>
+                  Collect &amp; finalize payment
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+
+  </main>
+
+  <!-- Payment Modal Overlay -->
+  <div class="modal-overlay" id="payment-modal" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
+    <div class="modal-content">
+      <h3 class="modal-title" id="modal-heading">
+        <i class="ti ti-credit-card" aria-hidden="true"></i>
+        Select payment method
+      </h3>
+      <form id="payment-form" novalidate>
+        <input type="hidden" id="modal-payment-id">
+        <div class="form-group">
+          <label class="form-label" for="modal-payment-method">Method</label>
+          <div class="select-wrapper">
+            <select class="form-select" id="modal-payment-method" required>
+              <option value="UPI">UPI (Google Pay / PhonePe)</option>
+              <option value="CARD">Card (Visa / Mastercard)</option>
+              <option value="CASH">Cash (physical collection)</option>
+              <option value="MOBILE_WALLET">Mobile wallet</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-success" type="submit" style="flex:1">
+            <i class="ti ti-check" aria-hidden="true"></i>
+            Complete transaction
+          </button>
+          <button class="btn btn-ghost" type="button" id="btn-close-modal" style="flex:1">
+            <i class="ti ti-x" aria-hidden="true"></i>
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Chatbot Floating UI Panel -->
+  <div class="chatbot-float-btn" id="chatbot-toggle-btn" title="AI Parking Assistant">
+      <i class="ti ti-message-chatbot" style="font-size: 1.8rem; color: #fff;" aria-hidden="true"></i>
+  </div>
+
+  <div class="chatbot-window" id="chatbot-window">
+      <div class="chat-header">
+          <div class="chat-header-title">
+              <i class="ti ti-cpu" aria-hidden="true"></i>
+              <span>AI Parking Assistant</span>
+          </div>
+          <button class="chat-close-btn" id="chat-close-btn" aria-label="Close Chat">&times;</button>
+      </div>
+      <div class="chat-messages" id="chat-messages">
+          <!-- Conversation bubbles loaded dynamically -->
+      </div>
+      
+      <!-- Suggested Action Pill Buttons -->
+      <div class="chat-suggested-actions">
+          <button class="suggest-btn">Find nearest parking</button>
+          <button class="suggest-btn">Cheapest parking</button>
+          <button class="suggest-btn">Find EV charging slot</button>
+          <button class="suggest-btn">Weather advice</button>
+      </div>
+      
+      <!-- Message input form -->
+      <form class="chat-input-area" id="chatbot-form">
+          <input type="text" class="chat-input" id="chat-input" placeholder="Ask AI Assistant..." required autocomplete="off">
+          <button type="submit" class="chat-send-btn"><i class="ti ti-send" aria-hidden="true"></i></button>
+      </form>
+  </div>
+
+  <!-- Client App script bindings -->
+  <script src="js/app.js"></script>
+
+  <!-- ANPR Camera Modal -->
+  <div id="anpr-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-lg); padding:1.5rem; width:min(500px, 95vw); box-shadow:var(--shadow-base);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+        <div style="display:flex; align-items:center; gap:8px; color:var(--text-primary); font-weight:700; font-size:1.1rem;">
+          <i class="ti ti-camera" style="color:var(--neon-cyan);"></i>
+          <span>Scan Number Plate</span>
+        </div>
+        <button id="anpr-close-btn" type="button" style="background:none; border:none; color:var(--text-secondary); cursor:pointer; font-size:1.5rem; line-height:1;">&times;</button>
+      </div>
+
+      <!-- Video Preview -->
+      <div style="position:relative; background:#000; border-radius:var(--radius-md); overflow:hidden; aspect-ratio:4/3; margin-bottom:1rem;">
+        <video id="anpr-video" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover; display:block; transform: scaleX(-1);"></video>
+        <canvas id="anpr-canvas" style="display:none;"></canvas>
+        <!-- Scanning overlay indicator -->
+        <div id="anpr-scanning-overlay" style="display:none; position:absolute; inset:0; background:rgba(0,240,255,0.1); border:2px solid var(--neon-cyan); border-radius:var(--radius-md); animation: anpr-pulse 1s infinite;">
+          <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:var(--neon-cyan); font-weight:700; text-align:center;">
+            <i class="ti ti-loader" style="font-size:2rem; display:block; animation: spin 1s linear infinite;"></i>
+            Processing OCR...
+          </div>
+        </div>
+      </div>
+
+      <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem; text-align:center;">
+        Position the number plate clearly in the frame, then click <strong>Capture</strong>.
+      </p>
+
+      <div style="display:flex; gap:10px;">
+        <button id="anpr-capture-btn" type="button" class="btn btn-primary" style="flex:1; justify-content:center;">
+          <i class="ti ti-camera-plus" aria-hidden="true"></i> Capture &amp; Scan
+        </button>
+        <button id="anpr-cancel-btn" type="button" class="btn btn-ghost" style="flex:1; justify-content:center;">
+          Cancel
+        </button>
+      </div>
+
+      <!-- Result Area -->
+      <div id="anpr-result-box" style="display:none; margin-top:1rem; padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-glass);">
+        <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:4px;">Detected Plate:</div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="text" id="anpr-result-input" class="form-input" style="flex:1; font-size:1.1rem; font-weight:700; letter-spacing:2px; font-family:'JetBrains Mono', monospace;">
+          <button id="anpr-use-btn" type="button" class="btn btn-success" style="white-space:nowrap;">
+            <i class="ti ti-check"></i> Use This
+          </button>
+        </div>
+        <div id="anpr-confidence-label" style="font-size:0.8rem; margin-top:6px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    @keyframes anpr-pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  </style>
+
+  <!-- ANPR Module Script -->
+  <script src="js/anpr.js"></script>
+</body>
+</html>

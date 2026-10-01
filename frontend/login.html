@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ParkSmart — Owner Login">
+  <title>Owner Login - ParkSmart</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <!-- Restore theme immediately before render -->
+  <script>
+    try {
+      const savedTheme = localStorage.getItem('ps-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    } catch (e) {}
+  </script>
+  <style>
+    .login-container {
+      max-width: 400px;
+      margin: 100px auto;
+      padding: 2rem;
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-glass);
+      box-shadow: var(--shadow-base);
+    }
+    .login-title {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-family: var(--font-sans);
+      color: var(--text-primary);
+    }
+    .error-msg {
+      color: var(--neon-red);
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      text-align: center;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="logo">
+      <div class="logo-icon-wrap"><i class="ti ti-car logo-icon" aria-hidden="true"></i></div>
+      <div class="logo-text-wrap">
+        <div class="name logo-text">ParkSmart</div>
+        <div class="sub">Owner Portal</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="theme-toggle" id="theme-toggle-btn" aria-label="Toggle dark/light mode" title="Toggle theme">
+        <i class="ti ti-sun" id="theme-icon"></i>
+      </button>
+      <a href="index.html" class="btn btn-ghost" style="margin-left: 10px; font-size: 0.9rem; padding: 5px 10px;">Back to Dashboard</a>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="login-container">
+      <h2 class="login-title">Owner Login</h2>
+      <form id="owner-login-form">
+        <div class="form-group">
+          <label class="form-label" for="login-id">Admin ID</label>
+          <input type="text" class="form-input" id="login-id" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="login-password">Password</label>
+          <input type="password" class="form-input" id="login-password" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Login</button>
+        <div id="login-error" class="error-msg">Invalid Credentials</div>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    // Theme toggle
+    const html = document.documentElement;
+    let savedTheme = 'dark';
+    try {
+      savedTheme = localStorage.getItem('ps-theme') || 'dark';
+    } catch (e) {
+      console.warn("Storage restricted.", e);
+    }
+    html.setAttribute('data-theme', savedTheme);
+    const themeIcon = document.getElementById('theme-icon');
+    if (themeIcon) {
+        themeIcon.className = savedTheme === 'dark' ? 'ti ti-sun' : 'ti ti-moon';
+    }
+
+    document.getElementById('theme-toggle-btn').addEventListener('click', () => {
+        const currentTheme = html.getAttribute('data-theme') || 'dark';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', newTheme);
+        try {
+          localStorage.setItem('ps-theme', newTheme);
+        } catch (e) {}
+        if (themeIcon) themeIcon.className = newTheme === 'dark' ? 'ti ti-sun' : 'ti ti-moon';
+    });
+
+    // Login Logic
+    document.getElementById('owner-login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = document.getElementById('login-id').value;
+      const pwd = document.getElementById('login-password').value;
+      
+      if(id === 'varshith' && pwd === '8008') {
+        try {
+          sessionStorage.setItem('ownerAuth', 'true');
+          localStorage.setItem('ownerAuth', 'true');
+        } catch (err) {
+          console.warn("Storage access restricted. Using URL fallback.", err);
+        }
+        window.location.href = 'owner.html?auth=8008';
+      } else {
+        document.getElementById('login-error').style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>
