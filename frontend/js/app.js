@@ -610,6 +610,11 @@ function initEventListeners() {
     // Theme toggle
     const themeBtn = document.getElementById('theme-toggle-btn');
     if (themeBtn) {
+        const initialTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        const initialIcon = document.getElementById('theme-icon');
+        if (initialIcon) {
+            initialIcon.className = initialTheme === 'dark' ? 'ti ti-sun' : 'ti ti-moon';
+        }
         themeBtn.addEventListener('click', () => {
             const html = document.documentElement;
             const currentTheme = html.getAttribute('data-theme') || 'dark';
