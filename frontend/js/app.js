@@ -215,7 +215,302 @@ function saveMockDb() {
 // Global Charts objects
 let charts = {};
 
+/**
+ * Real-Time Digital System Clock Ticker
+ */
+function startLiveClock() {
+    function tick() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        
+        const clockEl = document.getElementById('live-system-clock');
+        if (clockEl) {
+            clockEl.textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        const dateEl = document.getElementById('live-system-date');
+        if (dateEl) {
+            const options = { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' };
+            dateEl.textContent = `${now.toLocaleDateString('en-IN', options)} • IST`;
+        }
+    }
+    tick();
+    setInterval(tick, 1000);
+}
+
+/**
+ * Floating Cyberpunk Toast Notifications System
+ */
+function showToast(title, message, type = 'success', duration = 4000) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `cyber-toast toast-${type}`;
+
+    let icon = 'ti-circle-check';
+    if (type === 'error') icon = 'ti-alert-circle';
+    else if (type === 'warning') icon = 'ti-alert-triangle';
+    else if (type === 'emergency') icon = 'ti-siren';
+    else if (type === 'info') icon = 'ti-info-circle';
+
+    toast.innerHTML = `
+        <i class="ti ${icon} toast-icon" aria-hidden="true"></i>
+        <div class="toast-content">
+            <div class="toast-title">${title}</div>
+            <div class="toast-msg">${message}</div>
+        </div>
+        <button class="toast-close-btn" aria-label="Close Toast">&times;</button>
+    `;
+
+    const closeBtn = toast.querySelector('.toast-close-btn');
+    const dismiss = () => {
+        toast.classList.remove('toast-show');
+        setTimeout(() => toast.remove(), 350);
+    };
+
+    closeBtn.addEventListener('click', dismiss);
+    container.appendChild(toast);
+
+    requestAnimationFrame(() => {
+        toast.classList.add('toast-show');
+    });
+
+    if (duration > 0) {
+        setTimeout(dismiss, duration);
+    }
+}
+
+/**
+ * Updates Facility Real-Time Capacity & Surge Meter
+ */
+function updateCapacityMeter(occupied, total) {
+    const badge = document.getElementById('capacity-stats-badge');
+    const fill = document.getElementById('capacity-fill-bar');
+    const status = document.getElementById('capacity-status-indicator');
+    
+    if (!badge || !fill || total === 0) return;
+
+    const occupancy = Math.round((occupied / total) * 100);
+    badge.textContent = `${occupancy}% • ${occupied}/${total} Booked`;
+    fill.style.width = `${Math.min(100, occupancy)}%`;
+
+    if (occupancy > 80) {
+        fill.style.background = 'linear-gradient(90deg, #ff5500, #ff0055)';
+        fill.style.boxShadow = '0 0 16px rgba(255, 0, 85, 0.9)';
+        if (status) {
+            status.className = 'capacity-status status-surge';
+            status.innerHTML = '🔥 SURGE RATE ACTIVE (+50% Surge Multiplier)';
+        }
+    } else if (occupancy > 50) {
+        fill.style.background = 'linear-gradient(90deg, #39ff14, #ffd700)';
+        fill.style.boxShadow = '0 0 12px rgba(255, 215, 0, 0.6)';
+        if (status) {
+            status.className = 'capacity-status status-moderate';
+            status.innerHTML = '● Moderate Demand Rate (+20% Multiplier)';
+        }
+    } else {
+        fill.style.background = 'linear-gradient(90deg, #00f0ff, #39ff14)';
+        fill.style.boxShadow = '0 0 12px rgba(0, 240, 255, 0.5)';
+        if (status) {
+            status.className = 'capacity-status status-normal';
+            status.innerHTML = '● Standard Dynamic Rate (Normal Occupancy)';
+        }
+    }
+}
+
+/**
+ * Initializes Evaluator Quick-Demo Scenarios
+ */
+function initDemoChips() {
+    const chipPolice = document.getElementById('chip-police');
+    const chipAmbulance = document.getElementById('chip-ambulance');
+    const chipEv = document.getElementById('chip-ev');
+    const chipCar = document.getElementById('chip-car');
+
+    const setDemo = (plate, type, owner, label) => {
+        const plateInput = document.getElementById('input-plate');
+        const typeSelect = document.getElementById('select-type');
+        const ownerInput = document.getElementById('input-owner');
+        
+        if (plateInput) plateInput.value = plate;
+        if (typeSelect) typeSelect.value = type;
+        if (ownerInput) ownerInput.value = owner;
+
+        plateInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        showToast('✨ Scenario Loaded', `Pre-filled ${label} (${plate}). Click "Submit check-in" to allocate!`, 'info');
+    };
+
+    if (chipPolice) {
+        chipPolice.addEventListener('click', () => {
+            setDemo('TS-09-POLICE', 'POLICE', 'Patrol Squad 01', 'Police Patrol (Target: Bay A1)');
+        });
+    }
+    if (chipAmbulance) {
+        chipAmbulance.addEventListener('click', () => {
+            setDemo('TS-07-AMBU-108', 'AMBULANCE', 'Emergency Response Unit', 'Ambulance (Target: Bay C7)');
+        });
+    }
+    if (chipEv) {
+        chipEv.addEventListener('click', () => {
+            setDemo('TS-08-EV-9999', 'EV', 'Kiran Kumar', 'EV Charging (Green Bay)');
+        });
+    }
+    if (chipCar) {
+        chipCar.addEventListener('click', () => {
+            setDemo('KA-05-AB-4321', 'CAR', 'Aditya Roy', 'Standard Sedan');
+        });
+    }
+}
+
+/**
+ * Opens Slot Telemetry Inspector HUD Modal
+ */
+function openSlotInspector(slot) {
+    const modal = document.getElementById('slot-inspector-modal');
+    if (!modal) return;
+
+    const zoneBadge = document.getElementById('insp-zone-badge');
+    const slotNum = document.getElementById('insp-slot-num');
+    const body = document.getElementById('insp-body');
+    const actions = document.getElementById('insp-actions');
+
+    if (zoneBadge) zoneBadge.textContent = slot.zoneName;
+    if (slotNum) slotNum.textContent = slot.slotNumber;
+
+    let session = null;
+    if (slot.isOccupied) {
+        if (useMockData) {
+            session = mockDb.sessions.find(s => s.status === 'ACTIVE' && s.parkingSlot.slotNumber === slot.slotNumber);
+        } else {
+            // Check DOM active rows for plate if live
+            const rows = document.getElementById('sessions-table-body')?.querySelectorAll('tr') || [];
+            rows.forEach(r => {
+                const cells = r.querySelectorAll('td');
+                if (cells.length > 1 && cells[1].innerText === slot.slotNumber) {
+                    session = {
+                        vehicle: { licensePlate: cells[0].innerText, ownerName: cells[4]?.innerText || 'Guest', vehicleType: { typeName: cells[2]?.innerText || slot.slotType.typeName } },
+                        entryTime: new Date().toISOString()
+                    };
+                }
+            });
+        }
+    }
+
+    const categoryName = slot.slotType.typeName;
+    let categoryDisplay = categoryName;
+    if (slot.isEmergencyReserved) categoryDisplay += ' (🚨 Emergency Priority)';
+    if (slot.isElectricCharging) categoryDisplay += ' (⚡ Fast EV Charging)';
+
+    let statusBadgeHtml = slot.isOccupied 
+        ? '<span class="status-badge" style="background:rgba(255,0,85,0.2); border:1px solid #ff0055; color:#ff0055; animation:dot-blink 0.7s infinite alternate;">🔴 BOOKED / UNAVAILABLE</span>'
+        : '<span class="status-badge status-active" style="background:rgba(57,255,20,0.2); border:1px solid #39ff14; color:#39ff14;">🟢 AVAILABLE FOR ALLOCATION</span>';
+
+    let sessionHtml = '';
+    if (slot.isOccupied && session) {
+        const entryTimeFormatted = formatDateTime(session.entryTime);
+        const elapsedMinutes = Math.max(1, Math.floor((new Date() - new Date(session.entryTime)) / 60000));
+
+        sessionHtml = `
+            <div class="telemetry-status-box" style="border-color: rgba(255,0,85,0.4);">
+                <div style="font-size:0.75rem; font-weight:700; color:var(--neon-red); margin-bottom:6px;">PARKED VEHICLE TELEMETRY:</div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <span style="color:var(--text-secondary); font-size:0.8rem;">License Plate:</span>
+                    <strong style="color:var(--neon-cyan); font-family:'JetBrains Mono',monospace;">${session.vehicle.licensePlate}</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <span style="color:var(--text-secondary); font-size:0.8rem;">Owner:</span>
+                    <span style="color:#fff; font-size:0.8rem;">${session.vehicle.ownerName || 'Guest'}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <span style="color:var(--text-secondary); font-size:0.8rem;">Parked Since:</span>
+                    <span style="color:var(--text-secondary); font-size:0.8rem;">${entryTimeFormatted}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="color:var(--text-secondary); font-size:0.8rem;">Elapsed Duration:</span>
+                    <span style="color:var(--neon-yellow); font-weight:600; font-size:0.8rem;">${elapsedMinutes} Minutes</span>
+                </div>
+            </div>
+        `;
+    }
+
+    body.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <span style="font-size:0.8rem; color:var(--text-secondary);">Bay Status:</span>
+            ${statusBadgeHtml}
+        </div>
+        ${sessionHtml}
+        <div class="telemetry-grid">
+            <div class="telemetry-cell">
+                <div class="telemetry-label">Vehicle Type</div>
+                <div class="telemetry-val" style="color:${slot.isElectricCharging ? 'var(--neon-green)' : 'var(--neon-cyan)'};">${categoryDisplay}</div>
+            </div>
+            <div class="telemetry-cell">
+                <div class="telemetry-label">Distance to Gate</div>
+                <div class="telemetry-val">${slot.distanceToEntrance} meters</div>
+            </div>
+            <div class="telemetry-cell">
+                <div class="telemetry-label">Canopy / Coverage</div>
+                <div class="telemetry-val">${slot.isCovered ? '🌧️ Covered Bay' : '☀️ Open-Air'}</div>
+            </div>
+            <div class="telemetry-cell">
+                <div class="telemetry-label">Accessibility</div>
+                <div class="telemetry-val">${slot.isDisabledFriendly ? '♿ Accessible Ramp' : 'Standard'}</div>
+            </div>
+        </div>
+    `;
+
+    if (slot.isOccupied) {
+        const plate = session ? session.vehicle.licensePlate : '';
+        actions.innerHTML = `
+            <button class="btn btn-primary" id="btn-insp-checkout" style="flex:1;">
+                <i class="ti ti-logout-2"></i> Check-Out Vehicle (${slot.slotNumber})
+            </button>
+            <button class="btn btn-ghost" id="btn-insp-close" style="flex:1;">Close</button>
+        `;
+        document.getElementById('btn-insp-checkout').addEventListener('click', () => {
+            modal.classList.remove('active');
+            if (plate) {
+                const checkoutPlateInput = document.getElementById('checkout-plate');
+                const checkoutSelect = document.getElementById('checkout-plate-select');
+                if (checkoutPlateInput) checkoutPlateInput.value = plate;
+                if (checkoutSelect) checkoutSelect.value = plate;
+                checkoutPlateInput.focus();
+                checkoutPlateInput.scrollIntoView({ behavior: 'smooth' });
+                showToast('Vehicle Selected', `Loaded ${plate} into checkout. Click "Process check-out" to finalize.`, 'info');
+            }
+        });
+    } else {
+        actions.innerHTML = `
+            <button class="btn btn-success" id="btn-insp-book" style="flex:1;">
+                <i class="ti ti-login-2"></i> Allocate in Bay ${slot.slotNumber}
+            </button>
+            <button class="btn btn-ghost" id="btn-insp-close" style="flex:1;">Close</button>
+        `;
+        document.getElementById('btn-insp-book').addEventListener('click', () => {
+            modal.classList.remove('active');
+            const typeSelect = document.getElementById('select-type');
+            const plateInput = document.getElementById('input-plate');
+            if (typeSelect) typeSelect.value = categoryName;
+            if (plateInput) {
+                plateInput.focus();
+                plateInput.scrollIntoView({ behavior: 'smooth' });
+            }
+            showToast('Bay Selected', `Pre-selected ${categoryName} for Bay ${slot.slotNumber}. Enter license plate to check in.`, 'info');
+        });
+    }
+
+    document.getElementById('btn-insp-close').addEventListener('click', () => {
+        modal.classList.remove('active');
+    });
+
+    modal.classList.add('active');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    startLiveClock();
     detectEnvironment().then(() => {
         initEventListeners();
         loadDashboardData();
@@ -295,6 +590,16 @@ function initEventListeners() {
     
     const btnCloseModal = document.getElementById('btn-close-modal');
     if (btnCloseModal) btnCloseModal.addEventListener('click', closePaymentModal);
+
+    const btnCloseInsp = document.getElementById('btn-close-inspector');
+    if (btnCloseInsp) {
+        btnCloseInsp.addEventListener('click', () => {
+            const modal = document.getElementById('slot-inspector-modal');
+            if (modal) modal.classList.remove('active');
+        });
+    }
+
+    initDemoChips();
     
     const inputPlate = document.getElementById('input-plate');
     if (inputPlate) {
@@ -388,6 +693,11 @@ async function loadSlots() {
             zones[slot.zoneName].push(slot);
         });
 
+        // Update Real-Time Facility Capacity & Surge Meter
+        const totalCount = slots.length;
+        const occupiedTotal = slots.filter(s => s.isOccupied).length;
+        updateCapacityMeter(occupiedTotal, totalCount);
+
         const container = document.getElementById('slot-map-container');
         container.innerHTML = '';
 
@@ -442,32 +752,7 @@ async function loadSlots() {
                 `;
 
                 box.addEventListener('click', () => {
-                    if (slot.isOccupied) {
-                        let plate = '';
-                        if (useMockData) {
-                            const ses = mockDb.sessions.find(s => s.status === 'ACTIVE' && s.parkingSlot.slotNumber === slot.slotNumber);
-                            plate = ses ? ses.vehicle.licensePlate : '';
-                        } else {
-                            const rows = document.getElementById('sessions-table-body').querySelectorAll('tr');
-                            rows.forEach(row => {
-                                const cells = row.querySelectorAll('td');
-                                if (cells.length > 1 && cells[1].innerText === slot.slotNumber) {
-                                    plate = cells[0].innerText;
-                                }
-                            });
-                        }
-                        if (plate) {
-                            document.getElementById('checkout-plate').value = plate;
-                            const chkSel = document.getElementById('checkout-plate-select');
-                            if (chkSel) chkSel.value = plate;
-                            document.getElementById('checkout-plate').focus();
-                            document.getElementById('checkout-plate').scrollIntoView({ behavior: 'smooth' });
-                        }
-                    } else {
-                        document.getElementById('select-type').value = slot.slotType.typeName;
-                        document.getElementById('input-plate').focus();
-                        document.getElementById('input-plate').scrollIntoView({ behavior: 'smooth' });
-                    }
+                    openSlotInspector(slot);
                 });
 
                 grid.appendChild(box);
@@ -758,7 +1043,7 @@ async function handleCheckIn(e) {
         let recSlot = null;
         if (useMockData) {
             if (mockDb.sessions.some(s => s.vehicle.licensePlate === licensePlate && s.status === 'ACTIVE')) {
-                alert(`Error: Vehicle ${licensePlate} is already checked in.`);
+                showToast('Vehicle Already Parked', `Vehicle ${licensePlate} is currently parked in an active session.`, 'warning');
                 return;
             }
 
@@ -794,7 +1079,7 @@ async function handleCheckIn(e) {
             }
 
             if (!slot) {
-                alert(`Error: No available slots for ${vehicleType}`);
+                showToast('Facility Full', `No available slots currently found for category ${vehicleType}.`, 'error');
                 return;
             }
 
@@ -839,7 +1124,7 @@ async function handleCheckIn(e) {
             });
             if (!response.ok) {
                 const errData = await response.json();
-                alert(`Error: ${errData.message || 'Check-in failed'}`);
+                showToast('Check-in Failed', errData.message || 'Check-in failed', 'error');
                 return;
             }
             const sessionData = await response.json();
@@ -849,11 +1134,17 @@ async function handleCheckIn(e) {
         document.getElementById('check-in-form').reset();
         await loadDashboardData();
         
-        // Show success alert
-        alert(`🎉 Checked in successfully! Allocated Slot: ${recSlot}`);
+        // Show success alert via cyber toast
+        const isEmg = ['AMBULANCE', 'POLICE', 'FIRE_TRUCK'].includes(vehicleType);
+        showToast(
+            isEmg ? '🚨 Emergency Priority Cleared' : '🎉 Check-in Successful',
+            `Vehicle ${licensePlate} allocated to Bay ${recSlot}!`,
+            isEmg ? 'emergency' : 'success',
+            5000
+        );
     } catch (err) {
         console.error(err);
-        alert('An unexpected error occurred during check-in.');
+        showToast('System Error', 'An unexpected error occurred during check-in.', 'error');
     }
 }
 
@@ -870,7 +1161,7 @@ async function handleCheckOut(e) {
         if (useMockData) {
             const session = mockDb.sessions.find(s => s.vehicle.licensePlate === licensePlate && s.status === 'ACTIVE');
             if (!session) {
-                alert(`Error: No active parking session found for vehicle: ${licensePlate}`);
+                showToast('Not Found', `No active parking session found for vehicle: ${licensePlate}`, 'error');
                 return;
             }
 
@@ -949,7 +1240,7 @@ async function handleCheckOut(e) {
             });
             if (!response.ok) {
                 const errData = await response.json();
-                alert(`Error: ${errData.message || 'Check-out failed'}`);
+                showToast('Check-out Failed', errData.message || 'Check-out failed', 'error');
                 return;
             }
             checkoutData = await response.json();
@@ -981,9 +1272,10 @@ async function handleCheckOut(e) {
         const chkSel = document.getElementById('checkout-plate-select');
         if (chkSel) chkSel.value = '';
         await loadDashboardData();
+        showToast('Invoice Generated', `Checkout calculated for ${checkoutData.licensePlate}: ₹${checkoutData.amountDue.toFixed(2)} due.`, 'info');
     } catch (err) {
         console.error(err);
-        alert('An unexpected error occurred during checkout.');
+        showToast('System Error', 'An unexpected error occurred during checkout.', 'error');
     }
 }
 
@@ -1017,7 +1309,7 @@ async function processPayment(e) {
                 body: JSON.stringify({ paymentMethod })
             });
             if (!response.ok) {
-                alert('Payment submission failed.');
+                showToast('Payment Failed', 'Payment submission failed.', 'error');
                 return;
             }
         }
@@ -1025,10 +1317,10 @@ async function processPayment(e) {
         closePaymentModal();
         document.getElementById('checkout-ticket-stub').style.display = 'none';
         await loadDashboardData();
-        alert('Transaction finalized. Vehicle has cleared checkout! Gate opening.');
+        showToast('Transaction Finalized', 'Vehicle has cleared checkout! Gate barrier is opening.', 'success', 5000);
     } catch (err) {
         console.error(err);
-        alert('Failed to process payment.');
+        showToast('Payment Error', 'Failed to process payment transaction.', 'error');
     }
 }
 

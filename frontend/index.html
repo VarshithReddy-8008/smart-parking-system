@@ -60,19 +60,32 @@
         </div>
     </div>
 
-    <!-- Weather Widget Section -->
-    <div class="weather-widget">
+    <!-- Real-time Status Top Bar: Weather & Live Time Indicator -->
+    <div class="status-top-bar">
+      <!-- Weather Widget Section -->
+      <div class="weather-widget">
         <div class="weather-info">
-            <i class="ti ti-sun weather-icon-lg" id="weather-icon" aria-hidden="true"></i>
-            <div>
-                <div class="weather-desc" id="weather-desc">Sunny</div>
-                <div style="font-size: 0.8rem; color: var(--text-secondary);" id="weather-alert-label">Normal Conditions</div>
-            </div>
+          <i class="ti ti-sun weather-icon-lg" id="weather-icon" aria-hidden="true"></i>
+          <div>
+            <div class="weather-desc" id="weather-desc">Sunny</div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary);" id="weather-alert-label">Normal Conditions</div>
+          </div>
         </div>
         <div class="weather-temp" id="weather-temp">32.5°C</div>
         <div class="weather-recommendation" id="weather-rec-label">
-            ☀️ Recommends nearest parking slots to reduce walking distance.
+          ☀️ Recommends nearest parking slots to reduce walking distance.
         </div>
+      </div>
+
+      <!-- Live System Time & Status Widget -->
+      <div class="system-time-widget" id="system-time-card">
+        <div class="time-header">
+          <span class="live-dot-pulse">●</span>
+          <span class="time-system-status">SYSTEM ONLINE • IoT ACTIVE</span>
+        </div>
+        <div class="time-display" id="live-system-clock">--:--:--</div>
+        <div class="time-footer" id="live-system-date">Loading telemetry...</div>
+      </div>
     </div>
 
     <!-- Hero -->
@@ -118,6 +131,27 @@
             <h2 class="panel-title">Interactive Slot Allocations Map</h2>
           </div>
           <div class="panel-body">
+            <!-- Real-Time Capacity & Surge Surcharge Meter -->
+            <div class="capacity-meter-box">
+              <div class="capacity-meter-header">
+                <span class="capacity-meter-title">
+                  <i class="ti ti-dashboard" aria-hidden="true"></i> Facility Real-Time Capacity
+                </span>
+                <span class="capacity-stats-badge" id="capacity-stats-badge">0% • 0/30 Booked</span>
+              </div>
+              <div class="capacity-track">
+                <div class="capacity-fill" id="capacity-fill-bar" style="width: 0%;"></div>
+              </div>
+              <div class="capacity-meter-footer">
+                <span id="capacity-status-indicator" class="capacity-status status-normal">
+                  ● Standard Dynamic Rate (Normal Occupancy)
+                </span>
+                <span class="capacity-threshold-hint">
+                  <i class="ti ti-info-circle" aria-hidden="true"></i> Surge Rule: &gt;50% (+20%), &gt;80% (+50%)
+                </span>
+              </div>
+            </div>
+
             <div class="slot-map-container" id="slot-map-container">
                 <!-- Skeleton loader -->
             </div>
@@ -225,6 +259,25 @@
             <h2 class="panel-title">Automated Check-in</h2>
           </div>
           <div class="panel-body">
+            <!-- Quick Demo Evaluator Scenarios -->
+            <div class="demo-chips-container">
+              <span class="demo-chips-label"><i class="ti ti-sparkles" aria-hidden="true"></i> Evaluator Quick-Demo Scenarios:</span>
+              <div class="demo-chips-row">
+                <button type="button" class="demo-chip chip-police" id="chip-police" title="Simulate Police Car Arrival">
+                  <span class="chip-icon">🚓</span> Police (Bay A1)
+                </button>
+                <button type="button" class="demo-chip chip-ambulance" id="chip-ambulance" title="Simulate Ambulance Arrival">
+                  <span class="chip-icon">🚑</span> Ambulance (Bay C7)
+                </button>
+                <button type="button" class="demo-chip chip-ev" id="chip-ev" title="Simulate EV Charging Vehicle">
+                  <span class="chip-icon">⚡</span> EV Charging (Green)
+                </button>
+                <button type="button" class="demo-chip chip-car" id="chip-car" title="Simulate Passenger Sedan">
+                  <span class="chip-icon">🚗</span> Standard Car
+                </button>
+              </div>
+            </div>
+
             <form id="check-in-form" novalidate>
               <div class="form-group">
                 <label class="form-label" for="input-plate">License plate</label>
@@ -337,6 +390,32 @@
 
 
   </main>
+
+  <!-- Floating Toast Notifications Container -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- Slot Inspector HUD Modal -->
+  <div class="modal-overlay" id="slot-inspector-modal" role="dialog" aria-modal="true" aria-labelledby="inspector-heading">
+    <div class="modal-content inspector-content">
+      <div class="inspector-header">
+        <div class="inspector-title-group">
+          <span class="inspector-zone-badge" id="insp-zone-badge">ZONE A</span>
+          <h3 class="modal-title" id="inspector-heading" style="margin:0; font-size:1.15rem;">
+            Bay Telemetry: <span id="insp-slot-num" style="color:var(--neon-cyan);">--</span>
+          </h3>
+        </div>
+        <button class="chat-close-btn" id="btn-close-inspector" aria-label="Close Inspector">&times;</button>
+      </div>
+
+      <div class="inspector-body" id="insp-body">
+        <!-- Telemetry details populated dynamically -->
+      </div>
+
+      <div class="modal-actions" id="insp-actions" style="margin-top:1.25rem;">
+        <!-- Dynamic actions -->
+      </div>
+    </div>
+  </div>
 
   <!-- Payment Modal Overlay -->
   <div class="modal-overlay" id="payment-modal" role="dialog" aria-modal="true" aria-labelledby="modal-heading">

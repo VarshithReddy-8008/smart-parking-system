@@ -935,18 +935,91 @@ body {
     50% { transform: translateY(-4px); }
 }
 
-/* Weather Widget */
+/* Real-time Status Top Bar: Weather + Live Time Widget */
+.status-top-bar {
+    display: grid;
+    grid-template-columns: 1fr minmax(280px, 340px);
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 960px) {
+    .status-top-bar {
+        grid-template-columns: 1fr;
+    }
+}
+
 .weather-widget {
     background: rgba(22, 28, 45, 0.6);
-    border: 1px solid rgba(0, 240, 255, 0.1);
+    border: 1px solid rgba(0, 240, 255, 0.15);
     border-radius: var(--radius-lg);
-    padding: 1.25rem;
+    padding: 1.15rem 1.4rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.system-time-widget {
+    background: rgba(22, 28, 45, 0.7);
+    border: 1px solid rgba(0, 240, 255, 0.25);
+    border-radius: var(--radius-lg);
+    padding: 1.15rem 1.4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(0, 240, 255, 0.05);
+}
+
+.system-time-widget::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--neon-cyan);
+    box-shadow: 0 0 10px var(--neon-cyan);
+}
+
+.time-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    color: var(--neon-green);
+    margin-bottom: 0.25rem;
+}
+
+.live-dot-pulse {
+    color: var(--neon-green);
+    animation: dot-blink 0.8s infinite alternate;
+    font-size: 0.8rem;
+}
+
+.time-display {
+    font-family: 'JetBrains Mono', monospace, monospace;
+    font-size: 1.65rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--neon-cyan);
+    text-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
+    line-height: 1.1;
+}
+
+.time-footer {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+    font-weight: 500;
 }
 
 .weather-info {
@@ -1179,5 +1252,338 @@ body {
     position: relative;
     width: 100%;
     height: 220px;
+}
+
+/* ============================================================================
+   Real-Time Capacity & Surge Surcharge Meter
+   ============================================================================ */
+.capacity-meter-box {
+    background: rgba(22, 28, 45, 0.5);
+    border: 1px solid rgba(0, 240, 255, 0.15);
+    border-radius: var(--radius-md);
+    padding: 0.85rem 1.1rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+}
+
+.capacity-meter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.capacity-meter-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.capacity-stats-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(0, 240, 255, 0.1);
+    color: var(--neon-cyan);
+    border: 1px solid rgba(0, 240, 255, 0.25);
+}
+
+.capacity-track {
+    width: 100%;
+    height: 9px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.capacity-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #00f0ff, #39ff14);
+    border-radius: 10px;
+    transition: width 0.6s cubic-bezier(0.25, 0.8, 0.25, 1), background 0.6s ease;
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
+}
+
+.capacity-meter-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.45rem;
+    font-size: 0.75rem;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.capacity-status {
+    font-weight: 600;
+}
+
+.capacity-status.status-normal {
+    color: var(--neon-green);
+}
+
+.capacity-status.status-moderate {
+    color: var(--neon-yellow);
+}
+
+.capacity-status.status-surge {
+    color: var(--neon-red);
+    animation: dot-blink 0.7s infinite alternate;
+}
+
+.capacity-threshold-hint {
+    color: var(--text-muted);
+}
+
+/* ============================================================================
+   Evaluator Quick-Demo Chips
+   ============================================================================ */
+.demo-chips-container {
+    background: rgba(0, 240, 255, 0.03);
+    border: 1px dashed rgba(0, 240, 255, 0.22);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 0.9rem;
+    margin-bottom: 1.1rem;
+}
+
+.demo-chips-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--neon-cyan);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.demo-chips-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.demo-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.demo-chip:hover {
+    transform: translateY(-2px);
+}
+
+.demo-chip.chip-police:hover {
+    border-color: var(--neon-red);
+    background: rgba(255, 0, 85, 0.18);
+    box-shadow: 0 0 12px rgba(255, 0, 85, 0.5);
+}
+
+.demo-chip.chip-ambulance:hover {
+    border-color: #ff5500;
+    background: rgba(255, 85, 0, 0.18);
+    box-shadow: 0 0 12px rgba(255, 85, 0, 0.5);
+}
+
+.demo-chip.chip-ev:hover {
+    border-color: var(--neon-green);
+    background: rgba(57, 255, 20, 0.18);
+    box-shadow: 0 0 12px rgba(57, 255, 20, 0.5);
+}
+
+.demo-chip.chip-car:hover {
+    border-color: var(--neon-cyan);
+    background: rgba(0, 240, 255, 0.18);
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
+}
+
+/* ============================================================================
+   Floating Cyberpunk Toast Notifications
+   ============================================================================ */
+#toast-container {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    z-index: 999999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 400px;
+    width: calc(100% - 50px);
+    pointer-events: none;
+}
+
+.cyber-toast {
+    pointer-events: auto;
+    background: rgba(13, 19, 36, 0.95);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    border-radius: var(--radius-md);
+    padding: 0.9rem 1.1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 240, 255, 0.2);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    color: #ffffff;
+    backdrop-filter: blur(12px);
+    transform: translateX(120%);
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.35s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.cyber-toast.toast-show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.cyber-toast.toast-success {
+    border-color: var(--neon-green);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(57, 255, 20, 0.3);
+}
+
+.cyber-toast.toast-error {
+    border-color: var(--neon-red);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 0, 85, 0.4);
+}
+
+.cyber-toast.toast-warning {
+    border-color: var(--neon-yellow);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+.cyber-toast.toast-emergency {
+    border-color: var(--neon-red);
+    background: rgba(30, 8, 16, 0.96);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9), 0 0 25px rgba(255, 0, 85, 0.7);
+    animation: toast-emergency-pulse 1.2s infinite alternate;
+}
+
+@keyframes toast-emergency-pulse {
+    from { border-color: #ff0055; box-shadow: 0 0 15px rgba(255,0,85,0.4); }
+    to { border-color: #ff5588; box-shadow: 0 0 30px rgba(255,0,85,0.9); }
+}
+
+.toast-icon {
+    font-size: 1.4rem;
+    line-height: 1;
+    margin-top: 2px;
+}
+
+.toast-content {
+    flex: 1;
+}
+
+.toast-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+}
+
+.toast-msg {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.35;
+}
+
+.toast-close-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0 4px;
+    transition: color 0.2s;
+}
+
+.toast-close-btn:hover {
+    color: #ffffff;
+}
+
+/* ============================================================================
+   Slot Telemetry Inspector Modal
+   ============================================================================ */
+.inspector-content {
+    max-width: 460px !important;
+}
+
+.inspector-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+.inspector-title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.inspector-zone-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(0, 240, 255, 0.15);
+    color: var(--neon-cyan);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+}
+
+.telemetry-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+
+.telemetry-cell {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+
+.telemetry-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.telemetry-val {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.telemetry-status-box {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 10px;
+    margin-bottom: 0.75rem;
 }
 
