@@ -140,9 +140,9 @@ public class DataInitializer implements CommandLineRunner {
         VehicleType bikeType = typeMap.get("BIKE");
         VehicleType truckType = typeMap.get("TRUCK");
 
-        // Zone A: CAR & EV (12 slots)
-        parkingSlotRepository.save(ParkingSlot.builder().slotNumber("A1").zoneName("Zone A").slotType(carType).isOccupied(false).isElectricCharging(false).distanceToEntrance(12).isCovered(true).isDisabledFriendly(true).isPremium(true).isEmergencyReserved(false).build());
-        parkingSlotRepository.save(ParkingSlot.builder().slotNumber("A2").zoneName("Zone A").slotType(carType).isOccupied(false).isElectricCharging(false).distanceToEntrance(18).isCovered(true).isDisabledFriendly(false).isPremium(true).isEmergencyReserved(false).build());
+        // Zone A: CAR & EV (12 slots) - A1 is Car Emergency Slot for Police vehicles
+        parkingSlotRepository.save(ParkingSlot.builder().slotNumber("A1").zoneName("Zone A").slotType(carType).isOccupied(false).isElectricCharging(false).distanceToEntrance(12).isCovered(true).isDisabledFriendly(false).isPremium(true).isEmergencyReserved(true).build());
+        parkingSlotRepository.save(ParkingSlot.builder().slotNumber("A2").zoneName("Zone A").slotType(carType).isOccupied(false).isElectricCharging(false).distanceToEntrance(18).isCovered(true).isDisabledFriendly(true).isPremium(true).isEmergencyReserved(false).build());
         parkingSlotRepository.save(ParkingSlot.builder().slotNumber("A3").zoneName("Zone A").slotType(carType).isOccupied(false).isElectricCharging(false).distanceToEntrance(25).isCovered(false).isDisabledFriendly(false).isPremium(false).isEmergencyReserved(false).build());
         parkingSlotRepository.save(ParkingSlot.builder().slotNumber("A4").zoneName("Zone A").slotType(carType).isOccupied(false).isElectricCharging(false).distanceToEntrance(32).isCovered(false).isDisabledFriendly(false).isPremium(false).isEmergencyReserved(false).build());
         parkingSlotRepository.save(ParkingSlot.builder().slotNumber("A5").zoneName("Zone A").slotType(carType).isOccupied(false).isElectricCharging(false).distanceToEntrance(40).isCovered(false).isDisabledFriendly(false).isPremium(false).isEmergencyReserved(false).build());
@@ -174,7 +174,7 @@ public class DataInitializer implements CommandLineRunner {
         parkingSlotRepository.save(ParkingSlot.builder().slotNumber("C5").zoneName("Zone C").slotType(truckType).isOccupied(false).isElectricCharging(false).distanceToEntrance(64).isCovered(true).isDisabledFriendly(false).isPremium(false).isEmergencyReserved(false).build());
         parkingSlotRepository.save(ParkingSlot.builder().slotNumber("C6").zoneName("Zone C").slotType(truckType).isOccupied(false).isElectricCharging(false).distanceToEntrance(72).isCovered(true).isDisabledFriendly(false).isPremium(false).isEmergencyReserved(false).build());
         parkingSlotRepository.save(ParkingSlot.builder().slotNumber("C7").zoneName("Zone C").slotType(truckType).isOccupied(false).isElectricCharging(false).distanceToEntrance(10).isCovered(true).isDisabledFriendly(false).isPremium(true).isEmergencyReserved(true).build());
-        parkingSlotRepository.save(ParkingSlot.builder().slotNumber("C8").zoneName("Zone C").slotType(truckType).isOccupied(false).isElectricCharging(false).distanceToEntrance(15).isCovered(true).isDisabledFriendly(false).isPremium(true).isEmergencyReserved(true).build());
+        parkingSlotRepository.save(ParkingSlot.builder().slotNumber("C8").zoneName("Zone C").slotType(truckType).isOccupied(false).isElectricCharging(false).distanceToEntrance(15).isCovered(true).isDisabledFriendly(false).isPremium(false).isEmergencyReserved(false).build());
 
         log.info("Successfully seeded all 30 parking slots across Zones A, B, and C.");
     }

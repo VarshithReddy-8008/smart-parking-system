@@ -344,14 +344,99 @@ body {
     box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
 }
 
+.slot-box.available {
+    border-color: rgba(0, 240, 255, 0.25);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
+}
+
+/* Neon Red Blinking Occupied / Booked Slots */
 .slot-box.occupied {
-    border-color: rgba(255, 0, 85, 0.25);
-    box-shadow: var(--glow-red);
+    background: rgba(255, 0, 85, 0.12) !important;
+    border-color: var(--neon-red) !important;
+    color: #ffffff !important;
+    animation: neon-occupied-pulse 1.4s infinite cubic-bezier(0.4, 0, 0.6, 1) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.slot-box.occupied::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--neon-red);
+    box-shadow: 0 0 8px var(--neon-red);
+    animation: neon-stripe-pulse 1.4s infinite ease-in-out;
+}
+
+@keyframes neon-occupied-pulse {
+    0%, 100% {
+        border-color: #ff0055;
+        box-shadow: 0 0 12px rgba(255, 0, 85, 0.75), inset 0 0 10px rgba(255, 0, 85, 0.25);
+        background: rgba(255, 0, 85, 0.10);
+    }
+    50% {
+        border-color: #ff3377;
+        box-shadow: 0 0 28px rgba(255, 0, 85, 1), 0 0 45px rgba(255, 0, 85, 0.55), inset 0 0 18px rgba(255, 0, 85, 0.45);
+        background: rgba(255, 0, 85, 0.26);
+    }
+}
+
+@keyframes neon-stripe-pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; box-shadow: 0 0 12px #ff0055, 0 0 20px #ff0055; }
 }
 
 .slot-box.occupied:hover {
-    background: rgba(255, 0, 85, 0.05);
-    box-shadow: 0 0 20px rgba(255, 0, 85, 0.5);
+    transform: scale(1.05);
+    background: rgba(255, 0, 85, 0.25) !important;
+    box-shadow: 0 0 32px rgba(255, 0, 85, 1), inset 0 0 20px rgba(255, 0, 85, 0.5) !important;
+}
+
+/* Prominent BOOKED / UNAVAILABLE Badge */
+.slot-booked-indicator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 0.35rem;
+    padding: 0.2rem 0.45rem;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    border-radius: 4px;
+    background: rgba(255, 0, 85, 0.35);
+    border: 1px solid #ff0055;
+    color: #ffffff;
+    text-shadow: 0 0 8px #ff0055;
+    box-shadow: 0 0 10px rgba(255, 0, 85, 0.6);
+    animation: booked-badge-pulse 1.4s infinite ease-in-out;
+}
+
+.slot-booked-indicator .blink-dot {
+    color: #ff0055;
+    font-size: 0.8rem;
+    line-height: 1;
+    animation: dot-blink 0.7s infinite alternate;
+}
+
+@keyframes dot-blink {
+    0% { opacity: 0.3; text-shadow: none; }
+    100% { opacity: 1; text-shadow: 0 0 6px #ff0055; }
+}
+
+@keyframes booked-badge-pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 8px rgba(255, 0, 85, 0.5);
+    }
+    50% {
+        transform: scale(1.04);
+        box-shadow: 0 0 16px rgba(255, 0, 85, 0.95);
+        background: rgba(255, 0, 85, 0.5);
+    }
 }
 
 .slot-number {
@@ -1038,10 +1123,36 @@ body {
 }
 
 /* Slot map legend extension */
-.legend-dot.res { background: rgba(0, 240, 255, 0.1); border: 1px solid var(--neon-cyan); }
-.legend-dot.ev  { background: rgba(255, 215, 0, 0.1); border: 1px solid var(--neon-yellow); }
-.legend-dot.dis { background: rgba(189, 0, 255, 0.1); border: 1px solid var(--neon-purple); }
-.legend-dot.emg { background: rgba(255, 0, 85, 0.1); border: 1px solid var(--neon-red); }
+.slot-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.legend-dot.avail { background: var(--neon-cyan); border: 1px solid var(--neon-cyan); box-shadow: 0 0 6px var(--neon-cyan); }
+.legend-dot.occ   { background: var(--neon-red); border: 1px solid #ff5588; box-shadow: 0 0 8px var(--neon-red); animation: dot-blink 0.7s infinite alternate; }
+.legend-dot.res   { background: rgba(0, 240, 255, 0.1); border: 1px solid var(--neon-cyan); }
+.legend-dot.ev    { background: rgba(255, 215, 0, 0.3); border: 1px solid var(--neon-yellow); box-shadow: 0 0 6px var(--neon-yellow); }
+.legend-dot.dis   { background: rgba(189, 0, 255, 0.3); border: 1px solid var(--neon-purple); box-shadow: 0 0 6px var(--neon-purple); }
+.legend-dot.emg   { background: rgba(255, 0, 85, 0.3); border: 1px solid var(--neon-red); box-shadow: 0 0 8px var(--neon-red); }
 
 /* Charts analytics layout */
 .analytics-grid {

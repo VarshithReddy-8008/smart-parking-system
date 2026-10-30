@@ -49,8 +49,10 @@ public class EmergencyService {
         
         event = emergencyEventRepository.save(event);
 
-        // Reserve nearby slots if required (keep the area clear)
-        reserveAdjacentSlots(slotNumber);
+        // Reserve nearby slots if required for heavy emergency vehicles (keep the area clear)
+        if (!"POLICE".equalsIgnoreCase(vehicleType)) {
+            reserveAdjacentSlots(slotNumber);
+        }
 
         return event;
     }

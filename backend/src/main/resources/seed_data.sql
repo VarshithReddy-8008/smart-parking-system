@@ -39,9 +39,9 @@ INSERT IGNORE INTO weather_status (id, current_weather, temperature, weather_ale
 
 -- Seed Sample Parking Slots: Zone A (12), Zone B (10), Zone C (8)
 INSERT IGNORE INTO parking_slots (slot_number, zone_name, slot_type, is_occupied, is_electric_charging, distance_to_entrance, is_covered, is_disabled_friendly, is_premium, is_emergency_reserved) VALUES
--- Zone A: CAR & EV (12 slots)
-('A1',  'Zone A', 'CAR',  FALSE, FALSE, 12, TRUE,  TRUE,  TRUE,  FALSE),
-('A2',  'Zone A', 'CAR',  FALSE, FALSE, 18, TRUE,  FALSE, TRUE,  FALSE),
+-- Zone A: CAR & EV (12 slots) - A1 is Car Emergency Slot for Police vehicles
+('A1',  'Zone A', 'CAR',  FALSE, FALSE, 12, TRUE,  FALSE, TRUE,  TRUE),
+('A2',  'Zone A', 'CAR',  FALSE, FALSE, 18, TRUE,  TRUE,  TRUE,  FALSE),
 ('A3',  'Zone A', 'CAR',  FALSE, FALSE, 25, FALSE, FALSE, FALSE, FALSE),
 ('A4',  'Zone A', 'CAR',  FALSE, FALSE, 32, FALSE, FALSE, FALSE, FALSE),
 ('A5',  'Zone A', 'CAR',  FALSE, FALSE, 40, FALSE, FALSE, FALSE, FALSE),
@@ -71,4 +71,4 @@ INSERT IGNORE INTO parking_slots (slot_number, zone_name, slot_type, is_occupied
 ('C5',  'Zone C', 'TRUCK', FALSE, FALSE, 64, TRUE,  FALSE, FALSE, FALSE),
 ('C6',  'Zone C', 'TRUCK', FALSE, FALSE, 72, TRUE,  FALSE, FALSE, FALSE),
 ('C7',  'Zone C', 'TRUCK', FALSE, FALSE, 10, TRUE,  FALSE, TRUE,  TRUE),
-('C8',  'Zone C', 'TRUCK', FALSE, FALSE, 15, TRUE,  FALSE, TRUE,  TRUE);
+('C8',  'Zone C', 'TRUCK', FALSE, FALSE, 15, TRUE,  FALSE, FALSE, FALSE);

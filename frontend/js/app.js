@@ -77,6 +77,25 @@ function getInitialMockDb() {
         if (stored) {
             const parsed = JSON.parse(stored);
             if (parsed && Array.isArray(parsed.slots) && Array.isArray(parsed.sessions)) {
+                // Ensure synchronization for emergency car slot (A1) and regular truck slot (C8)
+                const a1 = parsed.slots.find(s => s.slotNumber === 'A1');
+                if (a1) {
+                    a1.isEmergencyReserved = true;
+                    a1.isDisabledFriendly = false;
+                }
+                const a2 = parsed.slots.find(s => s.slotNumber === 'A2');
+                if (a2) {
+                    a2.isDisabledFriendly = true;
+                }
+                const c8 = parsed.slots.find(s => s.slotNumber === 'C8');
+                if (c8) {
+                    c8.isEmergencyReserved = false;
+                    c8.isPremium = false;
+                }
+                const c7 = parsed.slots.find(s => s.slotNumber === 'C7');
+                if (c7) {
+                    c7.isEmergencyReserved = true;
+                }
                 return parsed;
             }
         }
@@ -101,9 +120,9 @@ function getInitialMockDb() {
             { vehicleType: 'EV', hourlyRate: 25.00, gracePeriodMinutes: 15 }
         ],
         slots: [
-            // Zone A: CAR & EV (12 slots)
-            { id: 1, slotNumber: 'A1', zoneName: 'Zone A', slotType: { typeName: 'CAR' }, isOccupied: false, isElectricCharging: false, distanceToEntrance: 12, isCovered: true, isDisabledFriendly: true, isPremium: true, isEmergencyReserved: false },
-            { id: 2, slotNumber: 'A2', zoneName: 'Zone A', slotType: { typeName: 'CAR' }, isOccupied: false, isElectricCharging: false, distanceToEntrance: 18, isCovered: true, isDisabledFriendly: false, isPremium: true, isEmergencyReserved: false },
+            // Zone A: CAR & EV (12 slots) - A1 is Car Emergency Slot for Police vehicles
+            { id: 1, slotNumber: 'A1', zoneName: 'Zone A', slotType: { typeName: 'CAR' }, isOccupied: false, isElectricCharging: false, distanceToEntrance: 12, isCovered: true, isDisabledFriendly: false, isPremium: true, isEmergencyReserved: true },
+            { id: 2, slotNumber: 'A2', zoneName: 'Zone A', slotType: { typeName: 'CAR' }, isOccupied: false, isElectricCharging: false, distanceToEntrance: 18, isCovered: true, isDisabledFriendly: true, isPremium: true, isEmergencyReserved: false },
             { id: 3, slotNumber: 'A3', zoneName: 'Zone A', slotType: { typeName: 'CAR' }, isOccupied: false, isElectricCharging: false, distanceToEntrance: 25, isCovered: false, isDisabledFriendly: false, isPremium: false, isEmergencyReserved: false },
             { id: 4, slotNumber: 'A4', zoneName: 'Zone A', slotType: { typeName: 'CAR' }, isOccupied: true, isElectricCharging: false, distanceToEntrance: 32, isCovered: false, isDisabledFriendly: false, isPremium: false, isEmergencyReserved: false },
             { id: 5, slotNumber: 'A5', zoneName: 'Zone A', slotType: { typeName: 'CAR' }, isOccupied: false, isElectricCharging: false, distanceToEntrance: 40, isCovered: false, isDisabledFriendly: false, isPremium: false, isEmergencyReserved: false },
@@ -127,7 +146,7 @@ function getInitialMockDb() {
             { id: 21, slotNumber: 'B9', zoneName: 'Zone B', slotType: { typeName: 'BIKE' }, isOccupied: false, isElectricCharging: false, distanceToEntrance: 14, isCovered: true, isDisabledFriendly: true, isPremium: true, isEmergencyReserved: false },
             { id: 22, slotNumber: 'B10', zoneName: 'Zone B', slotType: { typeName: 'BIKE' }, isOccupied: false, isElectricCharging: false, distanceToEntrance: 20, isCovered: true, isDisabledFriendly: true, isPremium: true, isEmergencyReserved: false },
 
-            // Zone C: TRUCK (8 slots)
+            // Zone C: TRUCK (8 slots) - C7 is Heavy Emergency Slot; C8 is regular truck
             { id: 23, slotNumber: 'C1', zoneName: 'Zone C', slotType: { typeName: 'TRUCK' }, isOccupied: false, isElectricCharging: false, distanceToEntrance: 30, isCovered: false, isDisabledFriendly: false, isPremium: false, isEmergencyReserved: false },
             { id: 24, slotNumber: 'C2', zoneName: 'Zone C', slotType: { typeName: 'TRUCK' }, isOccupied: false, isElectricCharging: false, distanceToEntrance: 38, isCovered: false, isDisabledFriendly: false, isPremium: false, isEmergencyReserved: false },
             { id: 25, slotNumber: 'C3', zoneName: 'Zone C', slotType: { typeName: 'TRUCK' }, isOccupied: false, isElectricCharging: false, distanceToEntrance: 46, isCovered: false, isDisabledFriendly: false, isPremium: false, isEmergencyReserved: false },
@@ -135,7 +154,7 @@ function getInitialMockDb() {
             { id: 27, slotNumber: 'C5', zoneName: 'Zone C', slotType: { typeName: 'TRUCK' }, isOccupied: false, isElectricCharging: false, distanceToEntrance: 64, isCovered: true, isDisabledFriendly: false, isPremium: false, isEmergencyReserved: false },
             { id: 28, slotNumber: 'C6', zoneName: 'Zone C', slotType: { typeName: 'TRUCK' }, isOccupied: false, isElectricCharging: false, distanceToEntrance: 72, isCovered: true, isDisabledFriendly: false, isPremium: false, isEmergencyReserved: false },
             { id: 29, slotNumber: 'C7', zoneName: 'Zone C', slotType: { typeName: 'TRUCK' }, isOccupied: false, isElectricCharging: false, distanceToEntrance: 10, isCovered: true, isDisabledFriendly: false, isPremium: true, isEmergencyReserved: true },
-            { id: 30, slotNumber: 'C8', zoneName: 'Zone C', slotType: { typeName: 'TRUCK' }, isOccupied: false, isElectricCharging: false, distanceToEntrance: 15, isCovered: true, isDisabledFriendly: false, isPremium: true, isEmergencyReserved: true }
+            { id: 30, slotNumber: 'C8', zoneName: 'Zone C', slotType: { typeName: 'TRUCK' }, isOccupied: false, isElectricCharging: false, distanceToEntrance: 15, isCovered: true, isDisabledFriendly: false, isPremium: false, isEmergencyReserved: false }
         ],
         sessions: [
             {
@@ -375,29 +394,34 @@ async function loadSlots() {
                 
                 // Color Code assignment
                 if (slot.isOccupied) {
-                    box.classList.add('occupied'); // Red
+                    box.classList.add('occupied'); // Neon Red Blinking
                 } else if (slot.isEmergencyReserved) {
-                    box.classList.add('emergency'); // Orange
+                    box.classList.add('emergency'); // Emergency Reserved
                 } else if (slot.isDisabledFriendly) {
-                    box.classList.add('disabled'); // Purple
+                    box.classList.add('disabled'); // Accessible
                 } else if (slot.isElectricCharging) {
-                    box.classList.add('ev'); // Yellow
+                    box.classList.add('ev'); // Electric Charging
                 } else {
-                    box.classList.add('available'); // Green
+                    box.classList.add('available'); // Available
                 }
 
                 box.dataset.slotNumber = slot.slotNumber;
                 box.dataset.occupied = slot.isOccupied;
 
                 let badge = '';
-                if (slot.isEmergencyReserved) badge = '<span class="slot-ev-badge">🚨</span>';
-                else if (slot.isElectricCharging) badge = '<span class="slot-ev-badge">⚡</span>';
-                else if (slot.isDisabledFriendly) badge = '<span class="slot-ev-badge">♿</span>';
+                if (slot.isEmergencyReserved) badge = '<span class="slot-ev-badge" title="Emergency Reserved">🚨</span>';
+                else if (slot.isElectricCharging) badge = '<span class="slot-ev-badge" title="EV Charging">⚡</span>';
+                else if (slot.isDisabledFriendly) badge = '<span class="slot-ev-badge" title="Accessible Parking">♿</span>';
+
+                const bookedBadge = slot.isOccupied 
+                    ? '<div class="slot-booked-indicator"><span class="blink-dot">●</span> BOOKED</div>' 
+                    : '';
 
                 box.innerHTML = `
                     ${badge}
                     <div class="slot-number">${slot.slotNumber}</div>
                     <div class="slot-type-badge">${slot.slotType.typeName}</div>
+                    ${bookedBadge}
                 `;
 
                 box.addEventListener('click', () => {
@@ -701,12 +725,32 @@ async function handleCheckIn(e) {
             // Simple mock recommendation
             const isEmergencyType = ['AMBULANCE', 'POLICE', 'FIRE_TRUCK'].includes(vehicleType);
             let slot = null;
-            if (isEmergencyType) {
-                slot = mockDb.slots.find(s => s.isEmergencyReserved && !s.isOccupied);
-            }
-            if (!slot) {
-                const targetType = isEmergencyType ? 'TRUCK' : vehicleType;
-                slot = mockDb.slots.find(s => s.slotType.typeName === targetType && !s.isOccupied);
+            if (vehicleType === 'POLICE') {
+                // Prioritize designated Car Emergency Reserved slot (A1)
+                slot = mockDb.slots.find(s => s.isEmergencyReserved && s.slotType.typeName === 'CAR' && !s.isOccupied);
+                if (!slot) {
+                    // Fallback to standard car slot
+                    slot = mockDb.slots.find(s => s.slotType.typeName === 'CAR' && !s.isEmergencyReserved && !s.isOccupied);
+                }
+                if (!slot) {
+                    slot = mockDb.slots.find(s => s.slotType.typeName === 'CAR' && !s.isOccupied);
+                }
+            } else if (vehicleType === 'AMBULANCE' || vehicleType === 'FIRE_TRUCK') {
+                // Prioritize designated Heavy Emergency Reserved slot (C7)
+                slot = mockDb.slots.find(s => s.isEmergencyReserved && s.slotType.typeName === 'TRUCK' && !s.isOccupied);
+                if (!slot) {
+                    // Fallback to regular truck slot
+                    slot = mockDb.slots.find(s => s.slotType.typeName === 'TRUCK' && !s.isEmergencyReserved && !s.isOccupied);
+                }
+                if (!slot) {
+                    slot = mockDb.slots.find(s => s.slotType.typeName === 'TRUCK' && !s.isOccupied);
+                }
+            } else {
+                // Standard vehicles (CAR, BIKE, TRUCK, EV) - never occupy emergency bays if regular bays exist
+                slot = mockDb.slots.find(s => s.slotType.typeName === vehicleType && !s.isEmergencyReserved && !s.isOccupied);
+                if (!slot) {
+                    slot = mockDb.slots.find(s => s.slotType.typeName === vehicleType && !s.isOccupied);
+                }
             }
 
             if (!slot) {
@@ -739,11 +783,13 @@ async function handleCheckIn(e) {
                 };
                 mockDb.emergencyEvents.push(event);
                 
-                // Reserve adjacent slot (mock logic)
-                const prefix = slot.slotNumber.replace(/\d+/, '');
-                const num = parseInt(slot.slotNumber.replace(/\D+/, ''));
-                const adjSlot = mockDb.slots.find(s => s.slotNumber === prefix + (num + 1));
-                if (adjSlot) adjSlot.isOccupied = true;
+                // Reserve adjacent slot buffer for heavy emergency vehicles (Ambulance, Fire Truck)
+                if (['AMBULANCE', 'FIRE_TRUCK'].includes(vehicleType)) {
+                    const prefix = slot.slotNumber.replace(/\d+/, '');
+                    const num = parseInt(slot.slotNumber.replace(/\D+/, ''));
+                    const adjSlot = mockDb.slots.find(s => s.slotNumber === prefix + (num + 1));
+                    if (adjSlot) adjSlot.isOccupied = true;
+                }
             }
         } else {
             const response = await fetch(`${API_BASE}/check-in`, {
@@ -822,16 +868,18 @@ async function handleCheckOut(e) {
             session.status = 'COMPLETED';
             session.exitTime = exitTime;
 
-            // Release adjacent slots if emergency
+            // Release adjacent slots if emergency heavy vehicle
             const isEmergencyType = ['AMBULANCE', 'POLICE', 'FIRE_TRUCK'].includes(session.vehicle.vehicleType.typeName);
             if (isEmergencyType) {
                 const ev = mockDb.emergencyEvents.find(e => e.licensePlate === licensePlate && e.status === 'ACTIVE');
                 if (ev) ev.status = "RESOLVED";
                 
-                const prefix = slot.slotNumber.replace(/\d+/, '');
-                const num = parseInt(slot.slotNumber.replace(/\D+/, ''));
-                const adjSlot = mockDb.slots.find(s => s.slotNumber === prefix + (num + 1));
-                if (adjSlot) adjSlot.isOccupied = false;
+                if (['AMBULANCE', 'FIRE_TRUCK'].includes(session.vehicle.vehicleType.typeName)) {
+                    const prefix = slot.slotNumber.replace(/\d+/, '');
+                    const num = parseInt(slot.slotNumber.replace(/\D+/, ''));
+                    const adjSlot = mockDb.slots.find(s => s.slotNumber === prefix + (num + 1));
+                    if (adjSlot) adjSlot.isOccupied = false;
+                }
             }
 
             const payment = {

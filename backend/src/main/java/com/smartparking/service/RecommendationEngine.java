@@ -52,6 +52,25 @@ public class RecommendationEngine {
                     score -= 100;
                     reasons.add("Non-emergency slot penalty for emergency vehicle (-100)");
                 }
+
+                // Dimension / category specialization: Police vehicles prefer CAR emergency bays; Ambulance & Fire Engines prefer heavy TRUCK bays
+                if ("POLICE".equalsIgnoreCase(vehicleType)) {
+                    if ("CAR".equalsIgnoreCase(slot.getSlotType().getTypeName())) {
+                        score += 500;
+                        reasons.add("Police Car Emergency bay match (+500)");
+                    } else {
+                        score -= 500;
+                        reasons.add("Vehicle dimension mismatch for Police patrol car (-500)");
+                    }
+                } else if ("AMBULANCE".equalsIgnoreCase(vehicleType) || "FIRE_TRUCK".equalsIgnoreCase(vehicleType)) {
+                    if ("TRUCK".equalsIgnoreCase(slot.getSlotType().getTypeName())) {
+                        score += 500;
+                        reasons.add("Heavy Emergency bay match (+500)");
+                    } else {
+                        score -= 500;
+                        reasons.add("Heavy emergency vehicle requires TRUCK bay clearance (-500)");
+                    }
+                }
             } else {
                 if (slot.getIsEmergencyReserved()) {
                     score -= 5000; // Strictly exclude emergency slots for standard vehicles
