@@ -205,7 +205,7 @@
                     </div>
                     <div style="background: rgba(255,255,255,0.02); padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.03);">
                         <div style="font-size: 0.7rem; color: var(--text-secondary);">EV CHARGING</div>
-                        <div style="font-weight: 700; color: var(--neon-yellow);" id="current-ev-price">₹25/hr</div>
+                        <div style="font-weight: 700; color: var(--neon-green);" id="current-ev-price">₹25/hr</div>
                     </div>
                 </div>
             </div>
@@ -274,6 +274,14 @@
           </div>
           <div class="panel-body">
             <form id="check-out-form" novalidate>
+              <div class="form-group">
+                <label class="form-label" for="checkout-plate-select">Select Parked Vehicle</label>
+                <div class="select-wrapper">
+                  <select class="form-select" id="checkout-plate-select">
+                    <option value="">-- Choose active booked vehicle --</option>
+                  </select>
+                </div>
+              </div>
               <div class="form-group">
                 <label class="form-label" for="checkout-plate">License plate</label>
                 <input class="form-input" type="text" id="checkout-plate" placeholder="e.g. MH-12-AB-1234" required>

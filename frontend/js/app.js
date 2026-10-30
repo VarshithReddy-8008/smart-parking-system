@@ -270,6 +270,23 @@ function initEventListeners() {
     const checkOutForm = document.getElementById('check-out-form');
     if (checkOutForm) checkOutForm.addEventListener('submit', handleCheckOut);
     
+    // Auto-fill checkout input when selecting a parked vehicle from dropdown
+    const checkoutSelect = document.getElementById('checkout-plate-select');
+    const checkoutPlateInput = document.getElementById('checkout-plate');
+    if (checkoutSelect && checkoutPlateInput) {
+        checkoutSelect.addEventListener('change', (e) => {
+            checkoutPlateInput.value = e.target.value;
+        });
+        checkoutPlateInput.addEventListener('input', (e) => {
+            const upper = e.target.value.trim().toUpperCase();
+            if (Array.from(checkoutSelect.options).some(o => o.value === upper)) {
+                checkoutSelect.value = upper;
+            } else {
+                checkoutSelect.value = '';
+            }
+        });
+    }
+    
     const btnPayNow = document.getElementById('btn-pay-now');
     if (btnPayNow) btnPayNow.addEventListener('click', openPaymentModal);
     
@@ -441,6 +458,8 @@ async function loadSlots() {
                         }
                         if (plate) {
                             document.getElementById('checkout-plate').value = plate;
+                            const chkSel = document.getElementById('checkout-plate-select');
+                            if (chkSel) chkSel.value = plate;
                             document.getElementById('checkout-plate').focus();
                             document.getElementById('checkout-plate').scrollIntoView({ behavior: 'smooth' });
                         }
@@ -477,6 +496,27 @@ async function loadActiveSessions() {
 
         const tbody = document.getElementById('sessions-table-body');
         tbody.innerHTML = '';
+
+        // Dynamically populate checkout dropdown with active booked vehicles
+        const checkoutSelect = document.getElementById('checkout-plate-select');
+        if (checkoutSelect) {
+            const currentSelected = checkoutSelect.value || (document.getElementById('checkout-plate') ? document.getElementById('checkout-plate').value : '');
+            checkoutSelect.innerHTML = '<option value="">-- Choose active booked vehicle --</option>';
+            if (sessions.length === 0) {
+                checkoutSelect.innerHTML = '<option value="">-- No active vehicles parked --</option>';
+            } else {
+                sessions.forEach(session => {
+                    const opt = document.createElement('option');
+                    opt.value = session.vehicle.licensePlate;
+                    const owner = session.vehicle.ownerName ? ` • ${session.vehicle.ownerName}` : '';
+                    opt.textContent = `${session.vehicle.licensePlate} (${session.parkingSlot.slotNumber} • ${session.vehicle.vehicleType.typeName}${owner})`;
+                    if (session.vehicle.licensePlate === currentSelected) {
+                        opt.selected = true;
+                    }
+                    checkoutSelect.appendChild(opt);
+                });
+            }
+        }
 
         if (sessions.length === 0) {
             tbody.innerHTML = `
@@ -938,6 +978,8 @@ async function handleCheckOut(e) {
 
         document.getElementById('checkout-ticket-stub').style.display = 'block';
         document.getElementById('checkout-plate').value = '';
+        const chkSel = document.getElementById('checkout-plate-select');
+        if (chkSel) chkSel.value = '';
         await loadDashboardData();
     } catch (err) {
         console.error(err);

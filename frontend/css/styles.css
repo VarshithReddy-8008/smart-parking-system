@@ -466,8 +466,8 @@ body {
     top: 5px;
     right: 5px;
     font-size: 0.75rem;
-    color: var(--neon-yellow);
-    text-shadow: 0 0 5px var(--neon-yellow);
+    color: var(--neon-green);
+    text-shadow: 0 0 8px var(--neon-green);
 }
 
 /* Operations Forms Hub */
@@ -1099,9 +1099,22 @@ body {
 }
 
 .slot-box.ev {
-    background: rgba(255, 215, 0, 0.05) !important;
-    border-color: var(--neon-yellow) !important;
-    color: var(--neon-yellow) !important;
+    background: rgba(57, 255, 20, 0.08) !important;
+    border-color: var(--neon-green) !important;
+    color: var(--neon-green) !important;
+    box-shadow: 0 0 14px rgba(57, 255, 20, 0.35), inset 0 0 8px rgba(57, 255, 20, 0.15) !important;
+}
+
+.slot-box.ev:hover {
+    background: rgba(57, 255, 20, 0.15) !important;
+    box-shadow: 0 0 24px rgba(57, 255, 20, 0.7) !important;
+}
+
+.slot-box.ev .slot-type-badge {
+    background: rgba(57, 255, 20, 0.2);
+    border: 1px solid rgba(57, 255, 20, 0.6);
+    color: var(--neon-green);
+    text-shadow: 0 0 5px rgba(57, 255, 20, 0.6);
 }
 
 .slot-box.disabled {
@@ -1150,7 +1163,7 @@ body {
 .legend-dot.avail { background: var(--neon-cyan); border: 1px solid var(--neon-cyan); box-shadow: 0 0 6px var(--neon-cyan); }
 .legend-dot.occ   { background: var(--neon-red); border: 1px solid #ff5588; box-shadow: 0 0 8px var(--neon-red); animation: dot-blink 0.7s infinite alternate; }
 .legend-dot.res   { background: rgba(0, 240, 255, 0.1); border: 1px solid var(--neon-cyan); }
-.legend-dot.ev    { background: rgba(255, 215, 0, 0.3); border: 1px solid var(--neon-yellow); box-shadow: 0 0 6px var(--neon-yellow); }
+.legend-dot.ev    { background: var(--neon-green); border: 1px solid var(--neon-green); box-shadow: 0 0 8px var(--neon-green); }
 .legend-dot.dis   { background: rgba(189, 0, 255, 0.3); border: 1px solid var(--neon-purple); box-shadow: 0 0 6px var(--neon-purple); }
 .legend-dot.emg   { background: rgba(255, 0, 85, 0.3); border: 1px solid var(--neon-red); box-shadow: 0 0 8px var(--neon-red); }
 
